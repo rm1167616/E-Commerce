@@ -1,0 +1,173 @@
+.bistik-table-container {
+    margin: 20px;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.bistik-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: white;
+}
+
+.bistik-table thead th {
+    background-color: #f0f0f0;
+    padding: 12px;
+    text-align: left;
+    border-bottom: 2px solid #d0d0d0;
+    font-weight: bold;
+    color: #333;
+}
+
+.bistik-table tbody tr:nth-child(odd) {
+    background-color: #f8f8f8;
+}
+
+.bistik-table tbody tr:hover {
+    background-color: #e0f7fa;
+}
+
+
+.bistik-table tbody td {
+    padding: 12px;
+    border-bottom: 1px solid #e0e0e0;
+    color: #555;
+}
+
+
+.bistik-table .select-column {
+    width: 40px;
+    text-align: center;
+}
+
+.bistik-table .title-column {
+    width: 30%;
+}
+
+.bistik-table .author-column {
+    width: 15%;
+}
+
+.bistik-table .categories-column {
+    width: 15%;
+}
+
+.bistik-table .tags-column {
+    width: 15%;
+}
+
+.bistik-table .comments-column {
+    width: 8%;
+    text-align: center;
+}
+
+.bistik-table .date-column {
+    width: 12%;
+}
+
+.bistik-table .actions-column {
+    width: 10%;
+    text-align: center;
+}
+
+.post-title {
+    font-weight: bold;
+    color: #0078d7;
+    text-decoration: none;
+}
+
+.post-title:hover {
+    text-decoration: underline;
+    color: #0056b3;
+}
+
+.selected-row {
+    background-color: #d1f2eb !important;
+}
+
+.bulk-actions-container {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+@media (max-width: 768px) {
+    .bistik-table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .bistik-table thead,
+    .bistik-table tbody,
+    .bistik-table tr,
+    .bistik-table td,
+    .bistik-table th {
+        display: block;
+        width: auto;
+    }
+
+    .bistik-table thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    .bistik-table tr {
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+    }
+
+    .bistik-table td {
+        border: none;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        padding-left: 50%;
+    }
+
+    .bistik-table td:before {
+        position: absolute;
+        left: 6px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        font-weight: bold;
+    }
+
+    .bistik-table td:nth-child(1):before {
+        content: "Select";
+    }
+    .bistik-table td:nth-child(2):before {
+        content: "Title";
+    }
+    .bistik-table td:nth-child(3):before {
+        content: "Author";
+    }
+    .bistik-table td:nth-child(4):before {
+        content: "Categories";
+    }
+    .bistik-table td:nth-child(5):before {
+        content: "Tags";
+    }
+    .bistik-table td:nth-child(6):before {
+        content: "Comments";
+    }
+    .bistik-table td:nth-child(7):before {
+        content: "Date";
+    }
+    .bistik-table td:nth-child(8):before {
+        content: "Actions";
+    }
+
+    .bistik-table thead th {
+        display: none;
+    }
+
+    .bulk-actions-container {
+        align-items: flex-start;
+    }
+}

@@ -1,0 +1,69 @@
+/* Flexbox solution */
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+  }
+  
+  /* Sidebar takes 250px (approx 3 cols if viewport is ~12-col system) */
+  .admin-layout > aside {
+    width: 250px;
+    flex-shrink: 0;
+    background: #343a40; /* Dark background */
+    color: white;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+  }
+  
+  /* Main content takes remaining space */
+  .admin-main-content {
+    flex: 1;
+    padding: 20px;
+    background: #f8f9fa; /* Light background */
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+
+  /* Grid solution */
+.admin-layout {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    min-height: 100vh;
+  }
+  
+  .admin-layout > aside {
+    background: #343a40;
+    color: white;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  
+  .admin-main-content {
+    padding: 20px;
+    background: #f8f9fa;
+    overflow-y: auto;
+  }
+
+
+  .admin-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* When sidebar is not collapsed */
+.admin-main-content {
+    flex-grow: 1;
+    margin-left: 0px; /* Adjust this to match your sidebar width */
+    transition: margin-left 0.3s ease;
+    padding: 20px;
+    width: calc(100% - 250px);
+}
+
+/* When sidebar is collapsed */
+.admin-layout.sidebar-collapsed .admin-main-content {
+    margin-left: 0px; /* Adjust this to match your collapsed sidebar width */
+    width: calc(100% - 80px);
+}
