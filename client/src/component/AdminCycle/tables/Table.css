@@ -171,3 +171,15 @@
         align-items: flex-start;
     }
 }
+
+
+.product-table th,
+.product-table td {
+  vertical-align: middle;
+  font-size: 14px;
+}
+
+.product-table del {
+  color: gray;
+  margin-right: 5px;
+}
