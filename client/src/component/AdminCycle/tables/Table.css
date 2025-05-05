@@ -183,3 +183,40 @@
   color: gray;
   margin-right: 5px;
 }
+
+
+
+
+/* Mobile Product List */
+.mobile-product-list {
+    padding: 0;
+    list-style: none;
+  }
+  
+  .mobile-product-item {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .mobile-product-item:last-child {
+    border-bottom: none;
+  }
+  
+  /* Hide desktop table on mobile */
+  @media (max-width: 767.98px) {
+    .product-table {
+      display: none;
+    }
+  }
+  
+  /* Hide mobile list on desktop */
+  @media (min-width: 768px) {
+    .mobile-product-list {
+      display: none;
+    }
+  }
+  
+  /* Optional: Add hover effects */
+  .mobile-product-item:hover {
+    background-color: #f8f9fa;
+  }

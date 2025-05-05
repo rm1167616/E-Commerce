@@ -31,7 +31,7 @@ const Sidebar = () => {
       path: '/admin/products',
       subItems: [
         { name: 'All Products', path: '/admin/products/all' },
-        { name: 'Add New', path: '/admin/products/add' },
+        { name: 'Add Product', path: '/admin/AddProducts' },
         { name: 'Categories', path: '/admin/products/categories' },
         { name: 'Tags', path: '/admin/products/tags' },
         { name: 'Attributes', path: '/admin/products/attributes' }

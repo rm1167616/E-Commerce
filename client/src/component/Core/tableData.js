@@ -1,14 +1,16 @@
+// src/data/tableData.js
 const products = [
     {
       id: 1,
       name: "Raspberry Coconut Yog",
-      image: "raspberry.jpg", // Replace with actual image URLs
+      image: "raspberry.jpg",
       stock: 699,
       price: "3,59 EGP",
       category: "Yogurt",
       date: "2024/03/04 at 12:09 pm",
       isFeatured: false,
       oldPrice: null,
+      editable: true,
     },
     {
       id: 2,
@@ -20,6 +22,7 @@ const products = [
       date: "2024/03/04 at 12:09 pm",
       isFeatured: true,
       oldPrice: null,
+      editable: true,
     },
     {
       id: 3,
@@ -31,6 +34,7 @@ const products = [
       date: "2024/03/04 at 12:09 pm",
       isFeatured: false,
       oldPrice: null,
+      editable: true,
     },
     {
       id: 4,
@@ -45,3 +49,6 @@ const products = [
       editable: true,
     },
   ];
+  
+  export default products;
+  
