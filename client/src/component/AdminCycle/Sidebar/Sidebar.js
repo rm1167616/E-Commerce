@@ -47,9 +47,7 @@ const Sidebar = () => {
       subItems: [
         { name: 'All Products', path: '/admin/dashboard' },
         { name: 'Add Product', path: '/admin/AddProducts' },
-        { name: 'Categories', path: '/admin/products/categories' },
-        { name: 'Tags', path: '/admin/products/tags' },
-        { name: 'Attributes', path: '/admin/products/attributes' }
+        { name: 'Categories', path: '/admin/AddCategory' },
       ]
     },
     {
@@ -57,8 +55,17 @@ const Sidebar = () => {
       icon: <FiUsers className="nav-icon" />,
       path: '/admin/users',
       subItems: [
-        { name: 'All Categories', path: '/admin/CategoriesTable' },
-        { name: 'Add Categories', path: '/admin/users/add' }
+        { name: 'All Categories', path: '/admin/CategoryForm' },
+        { name: 'Add Categories', path: '/admin/AddCategory' }
+      ]
+    },
+    {
+      name: 'Offer',
+      icon: <FiUsers className="nav-icon" />,
+      path: '/admin/users',
+      subItems: [
+        { name: 'All Offers', path: '/admin/CategoryForm' },
+        { name: 'Add Offer', path: '/admin/AddCategory' }
       ]
     },
     {

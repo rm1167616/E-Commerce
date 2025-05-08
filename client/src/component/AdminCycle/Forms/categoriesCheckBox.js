@@ -11,22 +11,20 @@ const ProductPage = () => {
   const [categories, setCategories] = useState([
     {
       id: 1,
-      name: 'Seafood',
+      name: 'productCategore1',
       subcategories: [
-        { id: 101, name: 'Fresh Fish', checked: false, count: 24 },
-        { id: 102, name: 'Fresh Shellfish', checked: false, count: 18 },
-        { id: 103, name: 'Frozen Fish', checked: false, count: 32 }
+        { id: 101, name: 'subCategore1', checked: false, count: 24 },
+       
       ],
       checked: false,
       count: 74
     },
     {
       id: 2,
-      name: 'Vegan Meat',
+      name: 'Parent',
       subcategories: [
-        { id: 201, name: 'Bacon', checked: false, count: 15 },
-        { id: 202, name: 'Beef', checked: false, count: 22 },
-        { id: 203, name: 'Burgers', checked: false, count: 45 }
+        { id: 201, name: 'Child', checked: false, count: 15 },
+     
       ],
       checked: false,
       count: 82

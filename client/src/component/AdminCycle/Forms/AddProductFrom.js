@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Container, Row, Col, Form, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import DescriptionEditor from '../DescriptionEditor/DescriptionEditor';
-import Categories from './categoriesForm';
+import Categories from './categoriesCheckBox';
 import ImageUploadForm from './ImageUploadForm';
 import StatusForm from './StatusForm'; // Import the new component
 
@@ -94,7 +94,9 @@ const ProductPage = () => {
             handleImageUpload={handleImageUpload} 
           />
         </Col>
+        <Col md={12} style={{marginTop:'-12%'}}>
         <Categories /> 
+        </Col>
       </Row>
     </Container>
   );
