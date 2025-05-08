@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Form, Button, Card, Image } from 'react-bootstrap';
+import { Container, Row, Col, Form, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import DescriptionEditor from '../DescriptionEditor/DescriptionEditor'
-import Categories from '../categories/categories'
+import DescriptionEditor from '../DescriptionEditor/DescriptionEditor';
+import Categories from './categoriesForm';
+import ImageUploadForm from './ImageUploadForm';
+import StatusForm from './StatusForm'; // Import the new component
 
 const ProductPage = () => {
   const [productName, setProductName] = useState('');
@@ -26,25 +28,6 @@ const ProductPage = () => {
     }
   };
 
-  const handleGalleryUpload = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length > 0) {
-      const readers = files.map(file => {
-        const reader = new FileReader();
-        return new Promise((resolve) => {
-          reader.onloadend = () => {
-            resolve(reader.result);
-          };
-          reader.readAsDataURL(file);
-        });
-      });
-
-      Promise.all(readers).then(results => {
-        setGalleryImages([...galleryImages, ...results]);
-      });
-    }
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle form submission
@@ -59,6 +42,11 @@ const ProductPage = () => {
       productImage,
       galleryImages
     });
+  };
+
+  const handleSaveDraft = () => {
+    setProductStatus('draft');
+    handleSubmit(new Event('submit')); // Simulate form submission
   };
 
   return (
@@ -79,51 +67,34 @@ const ProductPage = () => {
                     size="lg"
                   />
                 </Form.Group>
-
-
                 <DescriptionEditor />
-
                 <hr className="my-4" />
-
               </Form>
             </Card.Body>
           </Card>
         </Col>
-
         <Col md={4}>
-          <Card className="mb-4">
-            <Card.Header as="h5">Publish</Card.Header>
-            <Card.Body>
-              <div className="d-grid gap-2 mb-3">
-                <Button variant="outline-secondary">Save Draft</Button>
-                <Button variant="outline-secondary">Preview</Button>
-                <Button variant="outline-primary">Publish</Button>
-              </div>
-
-            </Card.Body>
-          </Card>
-
-
-          <Card className="mb-4">
-            <Card.Header as="h5">Product Image</Card.Header>
-            <Card.Body>
-              {productImage ? (
-                <div className="text-center mb-3">
-                  <Image src={productImage} thumbnail style={{ maxHeight: '150px' }} />
-                </div>
-              ) : (
-                <div className="border p-5 text-center mb-3">
-                  <div>Set product image</div>
-                </div>
-              )}
-              <Form.Group>
-                <Form.Control type="file" accept="image/*" onChange={handleImageUpload} />
-              </Form.Group>
-             
-            </Card.Body>
-          </Card>    
+          <StatusForm 
+            productStatus={productStatus}
+            setProductStatus={setProductStatus}
+            visibility={visibility}
+            setVisibility={setVisibility}
+            isVirtual={isVirtual}
+            setIsVirtual={setIsVirtual}
+            isDownloadable={isDownloadable}
+            setIsDownloadable={setIsDownloadable}
+            catalogVisibility={catalogVisibility}
+            setCatalogVisibility={setCatalogVisibility}
+            handleSubmit={handleSubmit}
+            handleSaveDraft={handleSaveDraft}
+          />
+          
+          <ImageUploadForm 
+            productImage={productImage} 
+            handleImageUpload={handleImageUpload} 
+          />
         </Col>
-        <Categories />  
+        <Categories /> 
       </Row>
     </Container>
   );

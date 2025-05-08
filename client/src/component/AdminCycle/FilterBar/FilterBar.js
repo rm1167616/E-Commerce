@@ -28,7 +28,7 @@ const ProductFilterBar = () => {
     <div className="filter-bar-container">
       <Row>
         <Col md={8}>
-          <div className="filter-actions-container">
+          <div className="filter-actions-container" style={{display:'flex' , marginBottom:'1%'}}>
             <Form.Select name="action" className="filter-select">
               {renderOptions(bulkActions)}
             </Form.Select>
@@ -36,7 +36,10 @@ const ProductFilterBar = () => {
             <Button name="bulk_action" value="Apply" className="filter-button">
               Apply
             </Button>
-            
+            </div>
+          </Col>
+            <Col md={8}>
+            <div className="filter-actions-container" style={{display:'flex' }}>
             <Form.Select name="product_cat" className="filter-select">
               {renderOptions(categories)}
             </Form.Select>
@@ -61,7 +64,7 @@ const ProductFilterBar = () => {
         
         <Col md={4}>
           <div className="pagination-container">
-            <span className="item-count">36 items</span>
+            <span className="item-count">0 items</span>
             
             <span>
               <span aria-hidden="true" className="filter-button pagination-button-disabled">
@@ -81,7 +84,7 @@ const ProductFilterBar = () => {
                   className="page-input"
                 />
                 
-                <span> of <span style={{ marginRight: '2px' }}>2</span></span>
+                <span> of <span style={{ marginRight: '2px' }}>0</span></span>
               </span>
               
               <Button href="?paged=2" className="pagination-button">

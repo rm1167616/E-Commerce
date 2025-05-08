@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect  } from 'react';
 import { Nav } from 'react-bootstrap';
 import { FiGrid, FiUsers, FiBarChart2, FiBell, FiSettings, FiHome, FiChevronDown, FiChevronRight } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
@@ -15,8 +15,23 @@ const Sidebar = () => {
     setExpandedItems(prev => ({
       ...prev,
       [itemName]: !prev[itemName]
+      
     }));
   };
+ 
+  
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setCollapsed(true);
+      }
+    };
+  
+    window.addEventListener('resize', handleResize);
+    handleResize(); // call once on mount
+  
+    return () => window.removeEventListener('resize', handleResize);}, []);
 
   const menuItems = [
     {
@@ -35,6 +50,15 @@ const Sidebar = () => {
         { name: 'Categories', path: '/admin/products/categories' },
         { name: 'Tags', path: '/admin/products/tags' },
         { name: 'Attributes', path: '/admin/products/attributes' }
+      ]
+    },
+    {
+      name: 'Categories',
+      icon: <FiUsers className="nav-icon" />,
+      path: '/admin/users',
+      subItems: [
+        { name: 'All Categories', path: '/admin/CategoriesTable' },
+        { name: 'Add Categories', path: '/admin/users/add' }
       ]
     },
     {

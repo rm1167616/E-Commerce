@@ -8,7 +8,8 @@ import NotFound from "./component/Shared/Error";
 // Layouts for admin pages onlyyyyyyy////////////////////////////////////////////////////////////////////////////////////
 import AdminLayout from "./component/Layout/AdminLayout";
 import Dashboard from "./component/AdminCycle/DashBoard/Dashboard";
-import AddProducts from "./component/AdminCycle/Forms/Form";
+import AddProducts from "./component/AdminCycle/Forms/AddProductFrom";
+import CategoriesTable from "./component/AdminCycle/tables/CategoriesTable";
 
 
 
@@ -27,6 +28,7 @@ export const router = createBrowserRouter([
       { path: "", element: <Navigate to="dashboard" replace /> },
       { path: "dashboard", element: <Dashboard /> }, // ✅ fixed here
       { path: "AddProducts", element: <AddProducts /> }, // ✅ fixed here
+      { path: "CategoriesTable", element: <CategoriesTable /> }, // ✅ fixed here
     ],
   },
   {

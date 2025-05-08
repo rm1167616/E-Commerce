@@ -1,6 +1,7 @@
 import { Container,Button } from 'react-bootstrap';
 import FilterBar from '../FilterBar/FilterBar';
-import Tables from '../tables/Table';
+import ProductTable from '../tables/ProductTable';
+import CategoriesTable from '../tables/CategoriesTable';
 import { Link } from 'react-router-dom';
 
 
@@ -17,9 +18,9 @@ function Dashboard() {
     </div>
     <div className="flex flex-row"
     style={{marginTop:'5%'}}>
-      <Tables />
+      <ProductTable />
     </div>
- 
+
     </Container>
   );
 }
