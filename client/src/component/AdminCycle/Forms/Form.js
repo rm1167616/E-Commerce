@@ -99,49 +99,6 @@ const ProductPage = () => {
                 <Button variant="outline-primary">Publish</Button>
               </div>
 
-              <Form.Group className="mb-3">
-                <Form.Label>Status: <strong>{productStatus}</strong></Form.Label>
-                <Form.Select
-                  value={productStatus}
-                  onChange={(e) => setProductStatus(e.target.value)}
-                >
-                  <option value="draft">Draft</option>
-                  <option value="pending">Pending Review</option>
-                  <option value="published">Published</option>
-                </Form.Select>
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Visibility: <strong>{visibility}</strong></Form.Label>
-                <Form.Select
-                  value={visibility}
-                  onChange={(e) => setVisibility(e.target.value)}
-                >
-                  <option value="public">Public</option>
-                </Form.Select>
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Publish immediately</Form.Label>
-                <Form.Control type="datetime-local" />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Catalog visibility: <strong>{catalogVisibility.replace('_', ' ')}</strong></Form.Label>
-                <Form.Select
-                  value={catalogVisibility}
-                  onChange={(e) => setCatalogVisibility(e.target.value)}
-                >
-                  <option value="shop_and_search">Shop and search results</option>
-                  <option value="shop_only">Shop only</option>
-                  <option value="search_only">Search only</option>
-                  <option value="hidden">Hidden</option>
-                </Form.Select>
-              </Form.Group>
-
-              <Button variant="outline-secondary" size="sm">
-                Copy to a new draft
-              </Button>
             </Card.Body>
           </Card>
 

@@ -30,7 +30,7 @@ const Sidebar = () => {
       icon: <FiSettings className="nav-icon" />,
       path: '/admin/products',
       subItems: [
-        { name: 'All Products', path: '/admin/products/all' },
+        { name: 'All Products', path: '/admin/dashboard' },
         { name: 'Add Product', path: '/admin/AddProducts' },
         { name: 'Categories', path: '/admin/products/categories' },
         { name: 'Tags', path: '/admin/products/tags' },
