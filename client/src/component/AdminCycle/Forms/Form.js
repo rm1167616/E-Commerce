@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button, Card, Image } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import DescriptionEditor from '../DescriptionEditor/DescriptionEditor'
+import Categories from '../categories/categories'
 
 const ProductPage = () => {
   const [productName, setProductName] = useState('');
@@ -102,6 +103,7 @@ const ProductPage = () => {
             </Card.Body>
           </Card>
 
+
           <Card className="mb-4">
             <Card.Header as="h5">Product Image</Card.Header>
             <Card.Body>
@@ -119,10 +121,9 @@ const ProductPage = () => {
               </Form.Group>
              
             </Card.Body>
-          </Card>
-
-        
+          </Card>    
         </Col>
+        <Categories />  
       </Row>
     </Container>
   );
