@@ -17,7 +17,7 @@ const SimpleTable = () => {
       <FilterBar />
     </div>
       {/* Desktop Table */}
-      <div className="flex flex-row" style={{marginTop:'5%'}}>
+      <div className="flex flex-row" style={{marginTop:'8%'}}>
       <Table bordered hover responsive className="product-table d-none d-md-table">
         <thead>
           <tr>
