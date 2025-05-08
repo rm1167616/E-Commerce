@@ -45,9 +45,9 @@ const Sidebar = () => {
       icon: <FiSettings className="nav-icon" />,
       path: '/admin/products',
       subItems: [
-        { name: 'All Products', path: '/admin/dashboard' },
+        { name: 'All Products', path: '/admin/ProductShow' },
         { name: 'Add Product', path: '/admin/AddProducts' },
-        { name: 'Categories', path: '/admin/AddCategory' },
+        { name: 'Categories', path: '/admin/CategoryForm' },
       ]
     },
     {
@@ -64,8 +64,8 @@ const Sidebar = () => {
       icon: <FiUsers className="nav-icon" />,
       path: '/admin/users',
       subItems: [
-        { name: 'All Offers', path: '/admin/CategoryForm' },
-        { name: 'Add Offer', path: '/admin/AddCategory' }
+        { name: 'All Offers', path: '/admin/OfferTable' },
+        { name: 'Add Offer', path: '/admin/AddOffer' }
       ]
     },
     {
@@ -73,7 +73,7 @@ const Sidebar = () => {
       icon: <FiUsers className="nav-icon" />,
       path: '/admin/users',
       subItems: [
-        { name: 'All Users', path: '/admin/users/all' },
+        { name: 'All Users', path: '/admin/UsersTable' },
         { name: 'Add New', path: '/admin/users/add' }
       ]
     },

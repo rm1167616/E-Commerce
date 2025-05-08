@@ -1,14 +1,23 @@
 import React from 'react';
-import { Table, Form, Image } from 'react-bootstrap';
+import { Table, Form, Image,Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import products from '../../Core/tableData';
+import FilterBar from '../FilterBar/FilterBar'
 import './Table.css';
 
 const ProductTable = () => {
   return (
     <>
+     <div className="flex flex-row">
+        <Button name="bulk_action" value="Apply" className="filter-button">
+          Add New Offer
+        </Button>
+      </div>
+      <div className="flex flex-row">
+        <FilterBar />
+      </div>
       {/* Desktop Table */}
-      <Table bordered hover responsive className="product-table d-none d-md-table">
+      <Table bordered hover responsive className="product-table d-none d-md-table" style={{marginTop:'5%'}}>
         <thead>
           <tr>
             <th><Form.Check type="checkbox" /></th>
