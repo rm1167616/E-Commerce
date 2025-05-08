@@ -10,7 +10,7 @@ const App = () => {
       <>
       <HeaderUser />
       <Outlet /> {/* This ensures your pages load here */}
-      <Footer />
+     <Footer/>
       </>
   );
 };
