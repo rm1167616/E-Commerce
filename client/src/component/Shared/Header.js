@@ -1,35 +1,54 @@
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
+// components/Header.js
+import React from 'react';
 import { Link } from 'react-router-dom';
+import './Style/Header.css';
 
-function BasicExample() {
+function Header() {
   return (
-    <Navbar expand="lg" className="bg-body-tertiary">
-      <Container>
-        <Navbar.Brand >React-Bootstrap</Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            <Nav.Link as={Link} to="/admin/dashboard">Home</Nav.Link>
-            <Nav.Link href="#link">Link</Nav.Link>
-            <NavDropdown title="Dropdown" id="basic-nav-dropdown">
-              <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
-              <NavDropdown.Item href="#action/3.2">
-                Another action
-              </NavDropdown.Item>
-              <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
-              <NavDropdown.Divider />
-              <NavDropdown.Item href="#action/3.4">
-                Separated link
-              </NavDropdown.Item>
-            </NavDropdown>
-          </Nav>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
+    <header className="header">
+      <div className="header-container">
+        <div className="logo-container">
+          <Link to="/" className="logo-link">
+            <span className="logo">YourLogo</span>
+          </Link>
+        </div>
+        
+        <nav className="nav-menu">
+          <input type="checkbox" id="mobile-menu" className="mobile-menu-check" />
+          <label htmlFor="mobile-menu" className="mobile-menu-label">
+            <span></span>
+            <span></span>
+            <span></span>
+          </label>
+          
+          <ul className="nav-list">
+            <li className="nav-item">
+              <Link to="/" className="nav-link">Home</Link>
+            </li>
+            <li className="nav-item">
+              <Link to="/about" className="nav-link">About</Link>
+            </li>
+            <li className="nav-item">
+              <Link to="/services" className="nav-link">Services</Link>
+            </li>
+            <li className="nav-item">
+              <Link to="/contact" className="nav-link">Contact</Link>
+            </li>
+            
+            {/* Auth Buttons */}
+            <div className="auth-buttons">
+              <li className="nav-item">
+                <Link to="/login" className="nav-link login-btn">Login</Link>
+              </li>
+              <li className="nav-item">
+                <Link to="/signup" className="nav-link get-started-btn">Get Started</Link>
+              </li>
+            </div>
+          </ul>
+        </nav>
+      </div>
+    </header>
   );
 }
 
-export default BasicExample;
+export default Header;
