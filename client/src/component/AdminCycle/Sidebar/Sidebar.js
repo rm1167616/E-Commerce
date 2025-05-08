@@ -74,7 +74,7 @@ const Sidebar = () => {
       path: '/admin/users',
       subItems: [
         { name: 'All Users', path: '/admin/UsersTable' },
-        { name: 'Add New', path: '/admin/users/add' }
+        { name: 'Add User', path: '/admin/AddUserForm' }
       ]
     },
     {
