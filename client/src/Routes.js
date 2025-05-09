@@ -3,10 +3,11 @@ import React from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import App from './App';
 import Home from './component/Shared/Home';
-import About from './component/About Page/About';
 import Profile from './component/Profile/Section/Profile';
 import WishList from './component/WishList/Sections/WishList';
 import Cart from './component/Cart/Section/Cart';
+import Contact from './component/Template1/ContactPage/Contact'
+import AboutUs from './component/Template1/AboutPage/About'
 
 
 import NotFound from './component/Shared/Error';
@@ -26,17 +27,24 @@ import NavSettingsForm from "./component/AdminCycle/Forms/NavSettingsForm";
 import PagesManagement from "./component/AdminCycle/Pages/PagesManagement"; 
 import PageSettingsForm from "./component/AdminCycle/Forms/PageForm"; 
 import AboutUsForm from "./component/AdminCycle/Forms/AboutUsForm"; 
-import Contact from './component/Contact Page/Contact.jsx'
+import Auth from './component/Auth/AuthForm'
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
       { index: true, element: <Home /> },           // "/"
-      { path: "about",    element: <About /> },     // "/about"
+  
       { path: "profile",  element: <Profile /> },   // "/profile"
       { path: "wishlist", element: <WishList /> },  // "/wishlist"
       { path: "contact", element: <Contact /> },  // "/wishlist"
+
+      { path: "Cart", element: <Cart /> },  // "/wishlist"
+
+      { path: "AboutUs", element: <AboutUs /> },  // "/wishlist"
+
+      { path: "Auth", element: <Auth /> }  // "/wishlist"
+
     ]
   },
   {

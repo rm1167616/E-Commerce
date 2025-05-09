@@ -46,7 +46,7 @@ function Header() {
               <Link to="/admin/ProductShow" className="nav-link">Home</Link>
             </li>
             <li className="nav-item">
-              <Link to="/about" className="nav-link">About</Link>
+              <Link to="/AboutUs" className="nav-link">About</Link>
             </li>
             <li className="nav-item">
               <Link to="/services" className="nav-link">Services</Link>
@@ -97,7 +97,7 @@ function Header() {
             {/* Auth Buttons */}
             <div className="auth-buttons">
               <li className="nav-item">
-                <Link to="/login" className="nav-link login-btn">Login</Link>
+                <Link to="/Auth" className="nav-link login-btn">Login</Link>
               </li>
               <li className="nav-item">
                 <Link to="/signup" className="nav-link get-started-btn">Get Started</Link>

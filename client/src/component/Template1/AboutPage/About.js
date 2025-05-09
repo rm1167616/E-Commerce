@@ -1,7 +1,7 @@
 // About.jsx
 import React from 'react'
 import './About.css'
-import { teamMembers } from '../../Assets/data'
+import { teamMembers } from '../../Core/AboutUsdata'
 
 function About() {
   return (
@@ -27,4 +27,4 @@ function About() {
   )
 }
 
-export default About
+export default About;
