@@ -20,7 +20,10 @@ import OfferTable from "./component/AdminCycle/tables/OfferTable";
 import AddOffer from "./component/AdminCycle/Forms/AddOffer";
 import UsersTable from "./component/AdminCycle/tables/UsersTable";
 import AddUserForm from "./component/AdminCycle/Forms/AddUserForm";
-import NavSettingsForm from "./component/AdminCycle/Forms/NavSettingsForm";
+import NavSettingsForm from "./component/AdminCycle/Forms/NavSettingsForm"; 
+import PagesManagement from "./component/AdminCycle/Pages/PagesManagement"; 
+import PageSettingsForm from "./component/AdminCycle/Forms/PageForm"; 
+import AboutUsForm from "./component/AdminCycle/Forms/AboutUsForm"; 
 
 
 
@@ -51,6 +54,9 @@ export const router = createBrowserRouter([
       { path: "UsersTable", element: <UsersTable /> }, // ✅ fixed here 
       { path: "AddUserForm", element: <AddUserForm /> }, // ✅ fixed here 
       { path: "NavSettingsForm", element: <NavSettingsForm /> }, // ✅ fixed here 
+      { path: "PagesManagement", element: <PagesManagement /> }, // ✅ fixed here 
+      { path: "PageSettingsForm", element: <PageSettingsForm /> }, // ✅ fixed here 
+      { path: "AboutUsForm", element: <AboutUsForm /> }, // ✅ fixed here 
     ],
   },
 
