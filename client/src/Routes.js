@@ -17,7 +17,7 @@ import AddOffer from "./component/AdminCycle/Forms/AddOffer";
 import UsersTable from "./component/AdminCycle/tables/UsersTable";
 import AddUserForm from "./component/AdminCycle/Forms/AddUserForm";
 import NavSettingsForm from "./component/AdminCycle/Forms/NavSettingsForm";
-
+import About from './component/About Page/About.jsx'
 
 
 export const router = createBrowserRouter([
@@ -26,8 +26,16 @@ export const router = createBrowserRouter([
     element: <App />,
     children: [
       { path: "", element: <Home /> }, // shows at "/"
+      
     ],
   },
+  {
+    path: "/about",
+    element: <About />,
+    children:[
+      { path: "", element: <About /> }, 
+    ]
+  } ,
   {
     path: "/admin",
     element: <AdminLayout />,
