@@ -13,12 +13,10 @@ const PagesTable = () => {
           Add Page
         </Button>
       </div>
-      <div className="flex flex-row">
-        <FilterBar />
-      </div>
+   
       
       {/* Desktop Table */}
-      <div className="flex flex-row" style={{ marginTop: '8%' }}>
+      <div className="flex flex-row" style={{ marginTop: '2%' }}>
         <Table bordered hover responsive className="product-table d-none d-md-table">
           <thead>
             <tr>
