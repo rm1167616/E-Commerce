@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
-const { verifyToken } = require("../middlewares/authMiddleware");
+const { isAuthenticated } = require("../middlewares/authMiddleware");
 const {
   validate,
   registerValidationRules,
@@ -153,6 +153,6 @@ router.post("/login", loginValidationRules, validate, authController.login);
  *       500:
  *         description: Server error
  */
-router.get("/profile", verifyToken, authController.getProfile);
+router.get("/profile", isAuthenticated, authController.getProfile);
 
 module.exports = router;

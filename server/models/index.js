@@ -50,15 +50,6 @@ Store.hasMany(UserStore, { foreignKey: "store_id", onDelete: "CASCADE" });
 
 // Category associations
 Category.belongsTo(Store, { foreignKey: "store_id", onDelete: "CASCADE" });
-Category.belongsTo(Category, {
-  foreignKey: "parent_category_id",
-  as: "ParentCategory",
-  onDelete: "SET NULL",
-});
-Category.hasMany(Category, {
-  foreignKey: "parent_category_id",
-  as: "Subcategories",
-});
 Category.hasMany(Product, { foreignKey: "category_id", onDelete: "SET NULL" });
 
 // Product associations
