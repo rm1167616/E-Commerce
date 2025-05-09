@@ -91,7 +91,7 @@ const Sidebar = () => {
         { name: 'All Pages', path: '/admin/PagesManagement' },
         { name: 'Pages Setting', path: '/admin/PageSettingsForm' },
         { name: 'About US', path: '/admin/AboutUsForm' },
-        { name: 'Contact US', path: '/admin/ContactUsForm' },
+        { name: 'Contact US', path: '/admin/ContactForm' },
       ]
     },
     {
