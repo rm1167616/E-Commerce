@@ -6,6 +6,9 @@ import Home from './component/Shared/Home';
 import About from './component/About Page/About';
 import Profile from './component/Profile/Section/Profile';
 import WishList from './component/WishList/Sections/WishList';
+import Cart from './component/Cart/Section/Cart';
+
+
 import NotFound from './component/Shared/Error';
 
 // Admin imports
@@ -33,8 +36,7 @@ export const router = createBrowserRouter([
       { path: "about",    element: <About /> },     // "/about"
       { path: "profile",  element: <Profile /> },   // "/profile"
       { path: "wishlist", element: <WishList /> },  // "/wishlist"
-      { path: "wishlist", element: <WishList /> },  // "/wishlist"
-      { path: "Contact", element: <Contact /> }  // "/wishlist"
+      { path: "contact", element: <Contact /> },  // "/wishlist"
     ]
   },
   {
