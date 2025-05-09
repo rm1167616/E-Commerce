@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FaTrash, FaPlus, FaMinus, FaArrowLeft } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import './Style/Cart.css'
+
 const Cart = () => {
   const [cartItems, setCartItems] = useState([
     {

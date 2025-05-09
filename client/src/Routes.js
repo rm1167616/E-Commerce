@@ -37,6 +37,7 @@ export const router = createBrowserRouter([
       { path: "profile",  element: <Profile /> },   // "/profile"
       { path: "wishlist", element: <WishList /> },  // "/wishlist"
       { path: "contact", element: <Contact /> },  // "/wishlist"
+      { path: "Cart", element: <Cart /> },  // "/wishlist"
     ]
   },
   {
