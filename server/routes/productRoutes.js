@@ -78,29 +78,6 @@ router.get("/category/:categoryId", productController.getProductsByCategory);
 
 /**
  * @swagger
- * /api/products/{id}:
- *   get:
- *     summary: Get a product by ID
- *     tags: [Products]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: Product ID
- *     responses:
- *       200:
- *         description: Product details
- *       404:
- *         description: Product not found
- *       500:
- *         description: Server error
- */
-router.get("/:id", productController.getProductById);
-
-/**
- * @swagger
  * /api/products/featured:
  *   get:
  *     summary: Get featured products
@@ -181,6 +158,29 @@ router.get("/featured", productController.getFeaturedProducts);
  *         description: Server error
  */
 router.get("/search", productController.searchProducts);
+
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   get:
+ *     summary: Get a product by ID
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Product ID
+ *     responses:
+ *       200:
+ *         description: Product details
+ *       404:
+ *         description: Product not found
+ *       500:
+ *         description: Server error
+ */
+router.get("/:id", productController.getProductById);
 
 // Admin routes
 
@@ -339,9 +339,17 @@ router.post(
   [
     body("store_id").isInt().withMessage("Store ID must be an integer"),
     body("name").notEmpty().withMessage("Name is required"),
-    body("price").isFloat({ min: 0 }).withMessage("Price must be a positive number"),
-    body("stock_quantity").optional().isInt({ min: 0 }).withMessage("Stock quantity must be a non-negative integer"),
-    body("category_id").optional().isInt().withMessage("Category ID must be an integer"),
+    body("price")
+      .isFloat({ min: 0 })
+      .withMessage("Price must be a positive number"),
+    body("stock_quantity")
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage("Stock quantity must be a non-negative integer"),
+    body("category_id")
+      .optional()
+      .isInt()
+      .withMessage("Category ID must be an integer"),
     body("main_description").optional(),
     body("images").optional().isArray(),
     body("attributes").optional().isArray(),
@@ -425,11 +433,23 @@ router.put(
   isAuthenticated,
   isAdmin,
   [
-    body("store_id").optional().isInt().withMessage("Store ID must be an integer"),
+    body("store_id")
+      .optional()
+      .isInt()
+      .withMessage("Store ID must be an integer"),
     body("name").optional().notEmpty().withMessage("Name cannot be empty"),
-    body("price").optional().isFloat({ min: 0 }).withMessage("Price must be a positive number"),
-    body("stock_quantity").optional().isInt({ min: 0 }).withMessage("Stock quantity must be a non-negative integer"),
-    body("category_id").optional().isInt().withMessage("Category ID must be an integer"),
+    body("price")
+      .optional()
+      .isFloat({ min: 0 })
+      .withMessage("Price must be a positive number"),
+    body("stock_quantity")
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage("Stock quantity must be a non-negative integer"),
+    body("category_id")
+      .optional()
+      .isInt()
+      .withMessage("Category ID must be an integer"),
     body("main_description").optional(),
     body("images").optional().isArray(),
     body("attributes").optional().isArray(),
