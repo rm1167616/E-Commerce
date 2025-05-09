@@ -97,7 +97,7 @@ function Header() {
             {/* Auth Buttons */}
             <div className="auth-buttons">
               <li className="nav-item">
-                <Link to="/login" className="nav-link login-btn">Login</Link>
+                <Link to="/Auth" className="nav-link login-btn">Login</Link>
               </li>
               <li className="nav-item">
                 <Link to="/signup" className="nav-link get-started-btn">Get Started</Link>
