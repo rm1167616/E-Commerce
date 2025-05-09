@@ -50,11 +50,24 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-syncDatabase().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    console.log(
-      `API Documentation available at http://localhost:${PORT}/api-docs`
-    );
-  });
-});
+(async () => {
+  try {
+    const dbSynced = await syncDatabase();
+
+    if (!dbSynced) {
+      console.error(
+        "Failed to sync database. Server will start but may not function correctly."
+      );
+    }
+
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+      console.log(
+        `API Documentation available at http://localhost:${PORT}/api-docs`
+      );
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  }
+})();
