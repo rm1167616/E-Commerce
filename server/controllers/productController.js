@@ -1,4 +1,17 @@
-const { Product, Category, Store, ProductImage, ProductAttributeValue, ProductAttribute, AttributeOption, ProductOffer, Offer } = require("../models/index");
+const {
+  Product,
+  Category,
+  Store,
+  ProductImage,
+  ProductAttributeValue,
+  ProductAttribute,
+  AttributeOption,
+  ProductOffer,
+  Offer,
+  sequelize,
+  Review,
+  UserProduct,
+} = require("../models/index");
 const { Op } = require("sequelize");
 
 /**
@@ -59,7 +72,7 @@ const getAllProducts = async (req, res) => {
 
     // Search by name
     if (search) {
-      whereConditions.name = { [Op.like]: "%" + search + "%" };
+      whereConditions.name = { [Op.like]: `%${search}%` };
     }
 
     // Filter by price range
@@ -96,7 +109,7 @@ const getAllProducts = async (req, res) => {
     const pageNumber = parseInt(page) > 0 ? parseInt(page) : 1;
     const limitNumber = parseInt(limit) > 0 ? parseInt(limit) : 10;
     const offset = (pageNumber - 1) * limitNumber;
-
+    باقة;
     // Get total count for pagination
     const totalCount = await Product.count({ where: whereConditions });
 
@@ -213,12 +226,7 @@ const getProductsByCategory = async (req, res) => {
     } = req.query;
 
     // Validate sort parameters
-    const validSortFields = [
-      "name",
-      "price",
-      "seen_number",
-      "created_at",
-    ];
+    const validSortFields = ["name", "price", "seen_number", "created_at"];
     const validSortOrders = ["ASC", "DESC"];
 
     const sortField = validSortFields.includes(sort_by) ? sort_by : "name";
@@ -242,7 +250,7 @@ const getProductsByCategory = async (req, res) => {
 
     // Search by name
     if (search) {
-      whereConditions.name = { [Op.like]: "%" + search + "%" };
+      whereConditions.name = { [Op.like]: `%${search}%` };
     }
 
     // Filter by price range
@@ -356,7 +364,7 @@ const getProductsByCategory = async (req, res) => {
 };
 
 /**
- * @desc    Get a single product by ID
+ * @desc    Get product by ID
  * @route   GET /api/products/:id
  * @access  Public
  */
@@ -364,11 +372,12 @@ const getProductById = async (req, res) => {
   try {
     const productId = req.params.id;
 
+    // Find the product with all its related data
     const product = await Product.findByPk(productId, {
       include: [
         {
           model: Category,
-          attributes: ["category_id", "name"],
+          attributes: ["category_id", "name", "description"],
         },
         {
           model: Store,
@@ -409,6 +418,11 @@ const getProductById = async (req, res) => {
           ],
           required: false,
         },
+        {
+          model: Review,
+          attributes: ["review_id", "rating", "comment", "created_at"],
+          required: false,
+        },
       ],
     });
 
@@ -419,7 +433,7 @@ const getProductById = async (req, res) => {
       });
     }
 
-    // Increment seen_number
+    // Increment the seen_number for the product
     await Product.update(
       { seen_number: product.seen_number + 1 },
       { where: { product_id: productId } }
@@ -430,7 +444,7 @@ const getProductById = async (req, res) => {
       data: product,
     });
   } catch (error) {
-    console.error("Error getting product:", error);
+    console.error("Error getting product by ID:", error);
     res.status(500).json({
       success: false,
       message: "Failed to get product",
@@ -445,29 +459,24 @@ const getProductById = async (req, res) => {
  * @access  Admin
  */
 const createProduct = async (req, res) => {
+  const transaction = await sequelize.transaction();
+
   try {
     const {
       store_id,
       name,
       main_description,
       price,
-      stock_quantity,
+      stock_quantity = 0,
       category_id,
-      images,
-      attributes,
+      images = [],
+      attributes = [],
     } = req.body;
 
-    // Validate required fields
-    if (!store_id || !name || !price) {
-      return res.status(400).json({
-        success: false,
-        message: "Please provide store_id, name, and price",
-      });
-    }
-
     // Check if store exists
-    const storeExists = await Store.findByPk(store_id);
-    if (!storeExists) {
+    const store = await Store.findByPk(store_id);
+    if (!store) {
+      await transaction.rollback();
       return res.status(404).json({
         success: false,
         message: "Store not found",
@@ -476,8 +485,9 @@ const createProduct = async (req, res) => {
 
     // Check if category exists if provided
     if (category_id) {
-      const categoryExists = await Category.findByPk(category_id);
-      if (!categoryExists) {
+      const category = await Category.findByPk(category_id);
+      if (!category) {
+        await transaction.rollback();
         return res.status(404).json({
           success: false,
           message: "Category not found",
@@ -486,74 +496,81 @@ const createProduct = async (req, res) => {
     }
 
     // Create the product
-    const newProduct = await Product.create({
-      store_id,
-      name,
-      main_description,
-      price,
-      stock_quantity: stock_quantity || 0,
-      category_id: category_id || null,
-      created_by: req.user.id,
-      seen_number: 0,
-    });
+    const product = await Product.create(
+      {
+        store_id,
+        name,
+        main_description,
+        price,
+        stock_quantity,
+        category_id,
+        created_by: req.user.user_id,
+      },
+      { transaction }
+    );
 
-    // Add images if provided
-    if (images && Array.isArray(images)) {
+    // Add product images if provided
+    if (images && images.length > 0) {
       const productImages = images.map((image, index) => ({
-        product_id: newProduct.product_id,
-        img_path: image.path,
-        is_main: index === 0 || image.is_main, // First image is main by default
+        product_id: product.product_id,
+        img_path: image.img_path,
+        is_main: image.is_main || index === 0, // First image is main by default if not specified
         status: "active",
       }));
 
-      await ProductImage.bulkCreate(productImages);
+      await ProductImage.bulkCreate(productImages, { transaction });
     }
 
-    // Add attributes if provided
-    if (attributes && Array.isArray(attributes)) {
+    // Add product attributes if provided
+    if (attributes && attributes.length > 0) {
       const attributeValues = [];
 
       for (const attr of attributes) {
-        if (attr.attribute_id && attr.option_id) {
-          // Check if attribute exists
-          const attributeExists = await ProductAttribute.findOne({
-            where: {
-              attribute_id: attr.attribute_id,
-              store_id: store_id,
-            },
-          });
+        const { attribute_id, option_ids } = attr;
 
-          if (!attributeExists) {
-            continue; // Skip if attribute doesn't exist
+        // Validate attribute exists
+        const attributeExists = await ProductAttribute.findByPk(attribute_id);
+        if (!attributeExists) {
+          await transaction.rollback();
+          return res.status(404).json({
+            success: false,
+            message: `Attribute with ID ${attribute_id} not found`,
+          });
+        }
+
+        // Add each option for this attribute
+        if (option_ids && option_ids.length > 0) {
+          for (const option_id of option_ids) {
+            // Validate option exists
+            const optionExists = await AttributeOption.findByPk(option_id);
+            if (!optionExists) {
+              await transaction.rollback();
+              return res.status(404).json({
+                success: false,
+                message: `Option with ID ${option_id} not found`,
+              });
+            }
+
+            attributeValues.push({
+              product_id: product.product_id,
+              attribute_id,
+              option_id,
+            });
           }
-
-          // Check if option exists for this attribute
-          const optionExists = await AttributeOption.findOne({
-            where: {
-              option_id: attr.option_id,
-              attribute_id: attr.attribute_id,
-            },
-          });
-
-          if (!optionExists) {
-            continue; // Skip if option doesn't exist
-          }
-
-          attributeValues.push({
-            product_id: newProduct.product_id,
-            attribute_id: attr.attribute_id,
-            option_id: attr.option_id,
-          });
         }
       }
 
       if (attributeValues.length > 0) {
-        await ProductAttributeValue.bulkCreate(attributeValues);
+        await ProductAttributeValue.bulkCreate(attributeValues, {
+          transaction,
+        });
       }
     }
 
-    // Get the created product with all relations
-    const createdProduct = await Product.findByPk(newProduct.product_id, {
+    await transaction.commit();
+
+    // Fetch the created product with all its related data
+    const createdProduct = await Product.findByPk(product.product_id, {
       include: [
         {
           model: Category,
@@ -566,6 +583,8 @@ const createProduct = async (req, res) => {
         {
           model: ProductImage,
           attributes: ["id", "img_path", "is_main"],
+          where: { status: "active" },
+          required: false,
         },
         {
           model: ProductAttributeValue,
@@ -579,6 +598,7 @@ const createProduct = async (req, res) => {
               attributes: ["option_id", "value"],
             },
           ],
+          required: false,
         },
       ],
     });
@@ -589,6 +609,7 @@ const createProduct = async (req, res) => {
       data: createdProduct,
     });
   } catch (error) {
+    await transaction.rollback();
     console.error("Error creating product:", error);
     res.status(500).json({
       success: false,
@@ -596,12 +617,16 @@ const createProduct = async (req, res) => {
       error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
-};/**
+};
+
+/**
  * @desc    Update a product
  * @route   PUT /api/admin/products/:id
  * @access  Admin
  */
 const updateProduct = async (req, res) => {
+  const transaction = await sequelize.transaction();
+
   try {
     const productId = req.params.id;
     const {
@@ -615,20 +640,21 @@ const updateProduct = async (req, res) => {
       attributes,
     } = req.body;
 
-    // Find the product
+    // Check if product exists
     const product = await Product.findByPk(productId);
-
     if (!product) {
+      await transaction.rollback();
       return res.status(404).json({
         success: false,
         message: "Product not found",
       });
     }
 
-    // Check if store exists if store_id is provided
+    // Check if store exists if provided
     if (store_id) {
-      const storeExists = await Store.findByPk(store_id);
-      if (!storeExists) {
+      const store = await Store.findByPk(store_id);
+      if (!store) {
+        await transaction.rollback();
         return res.status(404).json({
           success: false,
           message: "Store not found",
@@ -636,10 +662,11 @@ const updateProduct = async (req, res) => {
       }
     }
 
-    // Check if category exists if category_id is provided
+    // Check if category exists if provided
     if (category_id) {
-      const categoryExists = await Category.findByPk(category_id);
-      if (!categoryExists) {
+      const category = await Category.findByPk(category_id);
+      if (!category) {
+        await transaction.rollback();
         return res.status(404).json({
           success: false,
           message: "Category not found",
@@ -647,105 +674,103 @@ const updateProduct = async (req, res) => {
       }
     }
 
-    // Update the product
-    await product.update({
-      store_id: store_id || product.store_id,
-      name: name || product.name,
-      main_description: main_description !== undefined ? main_description : product.main_description,
-      price: price || product.price,
-      stock_quantity: stock_quantity !== undefined ? stock_quantity : product.stock_quantity,
-      category_id: category_id !== undefined ? category_id : product.category_id,
-    });
-
-    // Update images if provided
-    if (images && Array.isArray(images)) {
-      // Handle image updates
-      for (const image of images) {
-        if (image.id) {
-          // Update existing image
-          await ProductImage.update(
-            {
-              img_path: image.path || undefined,
-              is_main: image.is_main !== undefined ? image.is_main : undefined,
-              status: image.status || undefined,
-            },
-            { where: { id: image.id, product_id: productId } }
-          );
-        } else if (image.path) {
-          // Add new image
-          await ProductImage.create({
-            product_id: productId,
-            img_path: image.path,
-            is_main: image.is_main || false,
-            status: "active",
-          });
-        }
+    // Update product
+    await Product.update(
+      {
+        store_id: store_id || product.store_id,
+        name: name || product.name,
+        main_description:
+          main_description !== undefined
+            ? main_description
+            : product.main_description,
+        price: price || product.price,
+        stock_quantity:
+          stock_quantity !== undefined
+            ? stock_quantity
+            : product.stock_quantity,
+        category_id:
+          category_id !== undefined ? category_id : product.category_id,
+      },
+      {
+        where: { product_id: productId },
+        transaction,
       }
+    );
+
+    // Update product images if provided
+    if (images && images.length > 0) {
+      // Delete existing images
+      await ProductImage.destroy({
+        where: { product_id: productId },
+        transaction,
+      });
+
+      // Add new images
+      const productImages = images.map((image, index) => ({
+        product_id: productId,
+        img_path: image.img_path,
+        is_main: image.is_main || index === 0, // First image is main by default if not specified
+        status: "active",
+      }));
+
+      await ProductImage.bulkCreate(productImages, { transaction });
     }
 
-    // Update attributes if provided
-    if (attributes && Array.isArray(attributes)) {
-      // First, get current attributes
-      const currentAttributes = await ProductAttributeValue.findAll({
+    // Update product attributes if provided
+    if (attributes && attributes.length > 0) {
+      // Delete existing attribute values
+      await ProductAttributeValue.destroy({
         where: { product_id: productId },
+        transaction,
       });
 
-      // Create a map of current attributes for easy lookup
-      const currentAttributeMap = {};
-      currentAttributes.forEach(attr => {
-        currentAttributeMap[attr.attribute_id + "-" + attr.option_id] = attr;
-      });
+      const attributeValues = [];
 
-      // Process new attributes
       for (const attr of attributes) {
-        if (attr.attribute_id && attr.option_id) {
-          const key = attr.attribute_id + "-" + attr.option_id;
+        const { attribute_id, option_ids } = attr;
 
-          // Check if attribute exists
-          const attributeExists = await ProductAttribute.findOne({
-            where: {
-              attribute_id: attr.attribute_id,
-              store_id: product.store_id,
-            },
+        // Validate attribute exists
+        const attributeExists = await ProductAttribute.findByPk(attribute_id);
+        if (!attributeExists) {
+          await transaction.rollback();
+          return res.status(404).json({
+            success: false,
+            message: `Attribute with ID ${attribute_id} not found`,
           });
+        }
 
-          if (!attributeExists) {
-            continue; // Skip if attribute doesn't exist
-          }
+        // Add each option for this attribute
+        if (option_ids && option_ids.length > 0) {
+          for (const option_id of option_ids) {
+            // Validate option exists
+            const optionExists = await AttributeOption.findByPk(option_id);
+            if (!optionExists) {
+              await transaction.rollback();
+              return res.status(404).json({
+                success: false,
+                message: `Option with ID ${option_id} not found`,
+              });
+            }
 
-          // Check if option exists for this attribute
-          const optionExists = await AttributeOption.findOne({
-            where: {
-              option_id: attr.option_id,
-              attribute_id: attr.attribute_id,
-            },
-          });
-
-          if (!optionExists) {
-            continue; // Skip if option doesn't exist
-          }
-
-          if (currentAttributeMap[key]) {
-            // Attribute already exists, no need to update
-            delete currentAttributeMap[key];
-          } else {
-            // Add new attribute
-            await ProductAttributeValue.create({
+            attributeValues.push({
               product_id: productId,
-              attribute_id: attr.attribute_id,
-              option_id: attr.option_id,
+              attribute_id,
+              option_id,
             });
           }
         }
       }
 
-      // Remove attributes that were not included in the update
-      for (const key in currentAttributeMap) {
-        await currentAttributeMap[key].destroy();
+      if (attributeValues.length > 0) {
+        await ProductAttributeValue.bulkCreate(attributeValues, {
+          transaction,
+        });
       }
     }
 
-    // Get the updated product with all relations
+    await transaction.commit();
+
+    // Fetch the updated product with all its related data
     const updatedProduct = await Product.findByPk(productId, {
       include: [
         {
@@ -785,6 +810,7 @@ const updateProduct = async (req, res) => {
       data: updatedProduct,
     });
   } catch (error) {
+    await transaction.rollback();
     console.error("Error updating product:", error);
     res.status(500).json({
       success: false,
@@ -800,27 +826,35 @@ const updateProduct = async (req, res) => {
  * @access  Admin
  */
 const deleteProduct = async (req, res) => {
+  const transaction = await sequelize.transaction();
+
   try {
     const productId = req.params.id;
 
-    // Find the product
+    // Check if product exists
     const product = await Product.findByPk(productId);
-
     if (!product) {
+      await transaction.rollback();
       return res.status(404).json({
         success: false,
         message: "Product not found",
       });
     }
 
-    // Delete the product (this will cascade to related entities)
-    await product.destroy();
+    // Delete the product (this will cascade delete related records)
+    await Product.destroy({
+      where: { product_id: productId },
+      transaction,
+    });
+
+    await transaction.commit();
 
     res.status(200).json({
       success: true,
       message: "Product deleted successfully",
     });
   } catch (error) {
+    await transaction.rollback();
     console.error("Error deleting product:", error);
     res.status(500).json({
       success: false,
@@ -829,6 +863,7 @@ const deleteProduct = async (req, res) => {
     });
   }
 };
+
 /**
  * @desc    Get featured products
  * @route   GET /api/products/featured
@@ -836,13 +871,12 @@ const deleteProduct = async (req, res) => {
  */
 const getFeaturedProducts = async (req, res) => {
   try {
-    const { limit = 10 } = req.query;
-    const limitNumber = parseInt(limit) > 0 ? parseInt(limit) : 10;
+    const limit = parseInt(req.query.limit) || 10;
 
-    // Get products with highest seen_number
+    // Get products with high seen_number as featured
     const products = await Product.findAll({
       order: [["seen_number", "DESC"]],
-      limit: limitNumber,
+      limit: limit,
       include: [
         {
           model: Category,
@@ -855,7 +889,7 @@ const getFeaturedProducts = async (req, res) => {
         {
           model: ProductImage,
           attributes: ["id", "img_path", "is_main"],
-          where: { status: "active", is_main: true },
+          where: { status: "active" },
           required: false,
         },
         {
@@ -898,17 +932,18 @@ const getFeaturedProducts = async (req, res) => {
  */
 const searchProducts = async (req, res) => {
   try {
-    const { 
-      query, 
+    const {
+      query,
       category_id,
       min_price,
       max_price,
       sort_by = "name",
       sort_order = "ASC",
       page = 1,
-      limit = 10 
+      limit = 10,
     } = req.query;
 
+    // Validate search query
     if (!query) {
       return res.status(400).json({
         success: false,
@@ -917,12 +952,7 @@ const searchProducts = async (req, res) => {
     }
 
     // Validate sort parameters
-    const validSortFields = [
-      "name",
-      "price",
-      "seen_number",
-      "created_at",
-    ];
+    const validSortFields = ["name", "price", "seen_number", "created_at"];
     const validSortOrders = ["ASC", "DESC"];
 
     const sortField = validSortFields.includes(sort_by) ? sort_by : "name";
@@ -932,13 +962,10 @@ const searchProducts = async (req, res) => {
 
     // Build where conditions
     const whereConditions = {
-      [Op.or]: [
-        { name: { [Op.like]: "%" + query + "%" } },
-        { main_description: { [Op.like]: "%" + query + "%" } },
-      ],
+      name: { [Op.like]: `%${query}%` },
     };
 
-    // Filter by category_id if provided
+    // Filter by category_id
     if (category_id) {
       whereConditions.category_id = category_id;
     }
@@ -985,6 +1012,21 @@ const searchProducts = async (req, res) => {
           model: ProductImage,
           attributes: ["id", "img_path", "is_main"],
           where: { status: "active" },
+          required: false,
+        },
+        {
+          model: ProductOffer,
+          include: [
+            {
+              model: Offer,
+              attributes: ["offer_id", "name", "discount_percentage"],
+              where: {
+                start_date: { [Op.lte]: new Date() },
+                end_date: { [Op.gte]: new Date() },
+              },
+              required: false,
+            },
+          ],
           required: false,
         },
       ],
