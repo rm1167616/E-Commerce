@@ -116,9 +116,9 @@ const ProductShowcase = () => {
       </div>
       
       <div className="pagination">
-        <button className="page-btn">Previous</button>
+    
         <span className="page-number">1 of 3</span>
-        <button className="page-btn">Next</button>
+       
       </div>
     </div>
   );

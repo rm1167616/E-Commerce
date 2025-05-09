@@ -14,7 +14,7 @@ import CardTemplate2 from '../Template1/Cards/Sections/CardTemplate2';
    >
     
      <CardTemplate2/>
-     
+ 
 
     </div>
     </Container>
