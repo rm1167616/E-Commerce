@@ -58,30 +58,38 @@ function Header() {
             {/* Icons Section */}
             <div className="icon-section">
               <li className="nav-item icon-item">
-                <button 
-                  className="wishlist-btn"
-                  onClick={toggleWishlist}
-                  aria-label="Wishlist"
-                >
-                  {isWishlistActive ? (
-                    <FaHeart className="wishlist-icon active" />
-                  ) : (
-                    <FaRegHeart className="wishlist-icon" />
-                  )}
-                  {wishlistCount > 0 && (
-                    <span className="wishlist-count">{wishlistCount}</span>
-                  )}
-                </button>
+               <Link 
+  to="/WishList" 
+  className="wishlist-btn-link"
+  aria-label="Wishlist"
+  onClick={(e) => {
+    // Prevent default link behavior if you want the toggle to work
+    // e.preventDefault();
+    toggleWishlist();
+  }}
+>
+  {isWishlistActive ? (
+    <FaHeart className="wishlist-icon active" />
+  ) : (
+    <FaRegHeart className="wishlist-icon" />
+  )}
+  {wishlistCount > 0 && (
+    <span className="wishlist-count">{wishlistCount}</span>
+  )}
+</Link>
               </li>
               <li className="nav-item icon-item">
                 <Link to="/cart" className="cart-link" aria-label="Cart">
                   <FaShoppingCart className="cart-icon" />
                   <span className="cart-count">0</span>
+                
                 </Link>
               </li>
               <li className="nav-item icon-item">
-                <Link to="/account" className="account-link" aria-label="Account">
+                <Link to="/Profile" className="account-link" aria-label="Account">
                   <FaUser className="account-icon" />
+
+
                 </Link>
               </li>
             </div>

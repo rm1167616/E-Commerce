@@ -17,6 +17,10 @@ import AddOffer from "./component/AdminCycle/Forms/AddOffer";
 import UsersTable from "./component/AdminCycle/tables/UsersTable";
 import AddUserForm from "./component/AdminCycle/Forms/AddUserForm";
 import NavSettingsForm from "./component/AdminCycle/Forms/NavSettingsForm";
+import Profile from "./component/Profile/Section/Profile";
+import WishList from "./component/WishList/Sections/WishList";
+
+
 
 
 
@@ -26,6 +30,8 @@ export const router = createBrowserRouter([
     element: <App />,
     children: [
       { path: "", element: <Home /> }, // shows at "/"
+      { path: "Profile", element: <Profile /> }, // shows at "/"
+      { path: "WishList", element: <WishList /> }, // 
     ],
   },
   {
