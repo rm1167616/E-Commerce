@@ -49,6 +49,9 @@ const Cart = () => {
       <div className="cart-header">
         <h1>Shopping Cart</h1>
         <Link to="/products" className="continue-shopping">
+
+
+        
           <FaArrowLeft /> Continue Shopping
         </Link>
       </div>
