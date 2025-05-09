@@ -44,6 +44,7 @@
   }
   
   .Cardd .detailes {
+    text-align:center ;
     flex: 1;
     padding: 15px;
   }
@@ -61,7 +62,8 @@
   }
   
   /* Responsive Design */
-  @media (max-width: 768px) {
+  
+  @media (max-width: 1000px) {
     .Cardd,
     .Cardd-reverse {
       flex-direction: column;

@@ -1,14 +1,12 @@
 // src/router.jsx
 import React from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-
 import App from './App';
 import Home from './component/Shared/Home';
 import About from './component/About Page/About';
 import Profile from './component/Profile/Section/Profile';
 import WishList from './component/WishList/Sections/WishList';
 import NotFound from './component/Shared/Error';
-
 // Admin imports
 import AdminLayout from './component/Layout/AdminLayout';
 import Dashboard   from './component/AdminCycle/DashBoard/Dashboard';
