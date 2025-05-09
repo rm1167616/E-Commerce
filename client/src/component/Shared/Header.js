@@ -1,9 +1,23 @@
 // components/Header.js
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { FaHeart, FaRegHeart, FaShoppingCart, FaUser } from 'react-icons/fa';
 import './Style/Header.css';
 
 function Header() {
+  const [wishlistCount, setWishlistCount] = useState(0);
+  const [isWishlistActive, setIsWishlistActive] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleWishlist = () => {
+    setIsWishlistActive(!isWishlistActive);
+    setWishlistCount(isWishlistActive ? wishlistCount - 1 : wishlistCount + 1);
+  };
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   return (
     <header className="header">
       <div className="header-container">
@@ -14,14 +28,20 @@ function Header() {
         </div>
         
         <nav className="nav-menu">
-          <input type="checkbox" id="mobile-menu" className="mobile-menu-check" />
+          <input 
+            type="checkbox" 
+            id="mobile-menu" 
+            className="mobile-menu-check" 
+            checked={isMenuOpen}
+            onChange={toggleMenu}
+          />
           <label htmlFor="mobile-menu" className="mobile-menu-label">
             <span></span>
             <span></span>
             <span></span>
           </label>
           
-          <ul className="nav-list">
+          <ul className={`nav-list ${isMenuOpen ? 'active' : ''}`}>
             <li className="nav-item">
               <Link to="/admin/ProductShow" className="nav-link">Home</Link>
             </li>
@@ -34,6 +54,37 @@ function Header() {
             <li className="nav-item">
               <Link to="/contact" className="nav-link">Contact</Link>
             </li>
+            
+            {/* Icons Section */}
+            <div className="icon-section">
+              <li className="nav-item icon-item">
+                <button 
+                  className="wishlist-btn"
+                  onClick={toggleWishlist}
+                  aria-label="Wishlist"
+                >
+                  {isWishlistActive ? (
+                    <FaHeart className="wishlist-icon active" />
+                  ) : (
+                    <FaRegHeart className="wishlist-icon" />
+                  )}
+                  {wishlistCount > 0 && (
+                    <span className="wishlist-count">{wishlistCount}</span>
+                  )}
+                </button>
+              </li>
+              <li className="nav-item icon-item">
+                <Link to="/cart" className="cart-link" aria-label="Cart">
+                  <FaShoppingCart className="cart-icon" />
+                  <span className="cart-count">0</span>
+                </Link>
+              </li>
+              <li className="nav-item icon-item">
+                <Link to="/account" className="account-link" aria-label="Account">
+                  <FaUser className="account-icon" />
+                </Link>
+              </li>
+            </div>
             
             {/* Auth Buttons */}
             <div className="auth-buttons">
