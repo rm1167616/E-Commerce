@@ -8,6 +8,7 @@ import WishList from './component/WishList/Sections/WishList';
 import Cart from './component/Cart/Section/Cart';
 import Contact from './component/Template1/ContactPage/Contact'
 import AboutUs from './component/Template1/AboutPage/About'
+import Auth from './component/Auth/AuthForm'
 
 
 import NotFound from './component/Shared/Error';
@@ -27,7 +28,8 @@ import NavSettingsForm from "./component/AdminCycle/Forms/NavSettingsForm";
 import PagesManagement from "./component/AdminCycle/Pages/PagesManagement"; 
 import PageSettingsForm from "./component/AdminCycle/Forms/PageForm"; 
 import AboutUsForm from "./component/AdminCycle/Forms/AboutUsForm"; 
-import Contact from './component/Contact Page/Contact.jsx'
+
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -37,6 +39,9 @@ export const router = createBrowserRouter([
   
       { path: "profile",  element: <Profile /> },   // "/profile"
       { path: "wishlist", element: <WishList /> },  // "/wishlist"
+      { path: "Cart", element: <Cart /> },  // "/wishlist"
+      { path: "AboutUs", element: <AboutUs /> },  // "/wishlist"
+      { path: "Auth", element: <Auth /> },  // "/wishlist"
       { path: "contact", element: <Contact /> },  // "/wishlist"
     ]
   },
