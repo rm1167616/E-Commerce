@@ -27,7 +27,7 @@ import NavSettingsForm from "./component/AdminCycle/Forms/NavSettingsForm";
 import PagesManagement from "./component/AdminCycle/Pages/PagesManagement"; 
 import PageSettingsForm from "./component/AdminCycle/Forms/PageForm"; 
 import AboutUsForm from "./component/AdminCycle/Forms/AboutUsForm"; 
-import Auth from './component/Auth/AuthForm'
+import Contact from './component/Contact Page/Contact.jsx'
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -38,13 +38,6 @@ export const router = createBrowserRouter([
       { path: "profile",  element: <Profile /> },   // "/profile"
       { path: "wishlist", element: <WishList /> },  // "/wishlist"
       { path: "contact", element: <Contact /> },  // "/wishlist"
-
-      { path: "Cart", element: <Cart /> },  // "/wishlist"
-
-      { path: "AboutUs", element: <AboutUs /> },  // "/wishlist"
-
-      { path: "Auth", element: <Auth /> }  // "/wishlist"
-
     ]
   },
   {

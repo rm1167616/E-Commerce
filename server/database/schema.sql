@@ -8,6 +8,17 @@ CREATE TABLE Users (
     gender ENUM('Male', 'Female', 'Other') NOT NULL,
     birthday DATE,
     role ENUM('super_admin', 'admin', 'client') NOT NULL DEFAULT 'client',
+    is_verified BOOLEAN DEFAULT FALSE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- OTP VERIFICATION
+CREATE TABLE OTPs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(100) NOT NULL,
+    otp_code VARCHAR(6) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    is_used BOOLEAN DEFAULT FALSE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
