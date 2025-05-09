@@ -56,7 +56,7 @@ export const router = createBrowserRouter([
       { path: "NavSettingsForm", element: <NavSettingsForm /> }, // ✅ fixed here 
       { path: "PagesManagement", element: <PagesManagement /> }, // ✅ fixed here 
       { path: "PageSettingsForm", element: <PageSettingsForm /> }, // ✅ fixed here 
-      { path: "AboutUsForm", element: <AboutUsForm /> }, // ✅ fixed here 
+      { path: "AboutUsForm", element: <AboutUsForm /> }, // ✅ fixed heree 
     ],
   },
 
