@@ -16,7 +16,7 @@ const apiRoutes = require("./routes/index");
 const swaggerSpec = require("./config/swagger/swaggerConfig");
 
 const app = express();
-const PORT = 3000;
+const PORT = 5222;
 
 // Middleware
 app.use(
