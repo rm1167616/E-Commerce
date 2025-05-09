@@ -41,20 +41,22 @@ export const router = createBrowserRouter([
     path: "/admin/ProductShow",
     element: <AdminLayout />,
     children: [
-      { path: "", element: <Navigate to="dashboard" replace /> },  // "/admin" -> "/admin/dashboard"
-      { path: "dashboard", element: <Dashboard /> },              // "/admin/dashboard"
-      { path: "product-show", element: <ProductShow /> },         // "/admin/product-show"
-      { path: "add-products", element: <AddProducts /> },         // "/admin/add-products"
-      { path: "category-form", element: <CategoryForm /> },       // "/admin/category-form"
-      { path: "add-category", element: <AddCategory /> },         // "/admin/add-category"
-      { path: "offer-table", element: <OfferTable /> },           // "/admin/offer-table"
-      { path: "add-offer", element: <AddOffer /> },               // "/admin/add-offer"
-      { path: "users-table", element: <UsersTable /> },           // "/admin/users-table"
-      { path: "add-user-form", element: <AddUserForm /> },        // "/admin/add-user-form"
-      { path: "nav-settings-form", element: <NavSettingsForm /> }, // "/admin/nav-settings-form"
-      { path: "pages-management", element: <PagesManagement /> },  // "/admin/pages-management"
-      { path: "page-settings-form", element: <PageSettingsForm /> }, // "/admin/page-settings-form"
-      { path: "about-us-form", element: <AboutUsForm /> },         // "/admin/about-us-form"
+
+      { path: "", element: <Navigate to="dashboard" replace /> },
+      { path: "dashboard", element: <Dashboard /> }, // ✅ fixed here
+      { path: "ProductShow", element: <ProductShow /> }, // ✅ fixed here
+      { path: "AddProducts", element: <AddProducts /> }, // ✅ fixed here
+      { path: "CategoryForm", element: <CategoryForm /> }, // ✅ fixed here
+      { path: "AddCategory", element: <AddCategory /> }, // ✅ fixed here 
+      { path: "OfferTable", element: <OfferTable /> }, // ✅ fixed here 
+      { path: "AddOffer", element: <AddOffer /> }, // ✅ fixed here 
+      { path: "UsersTable", element: <UsersTable /> }, // ✅ fixed here 
+      { path: "AddUserForm", element: <AddUserForm /> }, // ✅ fixed here 
+      { path: "NavSettingsForm", element: <NavSettingsForm /> }, // ✅ fixed here 
+      { path: "PagesManagement", element: <PagesManagement /> }, // ✅ fixed here 
+      { path: "PageSettingsForm", element: <PageSettingsForm /> }, // ✅ fixed here 
+      { path: "AboutUsForm", element: <AboutUsForm /> }, // ✅ fixed heree 
+
     ],
   },
   // catch-all 404

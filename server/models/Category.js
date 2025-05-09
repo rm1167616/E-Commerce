@@ -13,10 +13,6 @@ const Category = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    parent_category_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
     name: {
       type: DataTypes.STRING(100),
       allowNull: false,

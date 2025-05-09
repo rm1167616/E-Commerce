@@ -23,7 +23,7 @@ const register = async (req, res) => {
       phone_number,
       gender,
       birthday,
-      is_admin: false, // Default to regular user
+      role: "client", // Default to client role
     });
 
     // Generate JWT token
@@ -31,7 +31,7 @@ const register = async (req, res) => {
       {
         id: newUser.user_id,
         email: newUser.email,
-        is_admin: newUser.is_admin,
+        role: newUser.role,
       },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
@@ -46,7 +46,7 @@ const register = async (req, res) => {
           id: newUser.user_id,
           name: newUser.name,
           email: newUser.email,
-          is_admin: newUser.is_admin,
+          role: newUser.role,
         },
         token,
       },
@@ -92,7 +92,7 @@ const login = async (req, res) => {
       {
         id: user.user_id,
         email: user.email,
-        is_admin: user.is_admin,
+        role: user.role,
       },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
@@ -107,7 +107,7 @@ const login = async (req, res) => {
           id: user.user_id,
           name: user.name,
           email: user.email,
-          is_admin: user.is_admin,
+          role: user.role,
         },
         token,
       },

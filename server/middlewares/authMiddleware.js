@@ -1,83 +1,101 @@
-const jwt = require('jsonwebtoken');
-const { User } = require('../models');
+const jwt = require("jsonwebtoken");
+const { User } = require("../models/index");
 
 /**
- * Middleware to verify JWT token
+ * Middleware to check if user is authenticated
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
- * @param {Function} next - Express next function
+ * @param {Function} next - Express next middleware function
  */
-const verifyToken = (req, res, next) => {
+const isAuthenticated = async (req, res, next) => {
   try {
-    // Get token from Authorization header
+    // Get token from header
     const authHeader = req.headers.authorization;
-    
-    if (!authHeader) {
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({
         success: false,
-        message: 'Access denied. No token provided.'
+        message: "No token provided, authorization denied",
       });
     }
 
-    // Check if the header has the correct format
-    const token = authHeader.startsWith('Bearer ') 
-      ? authHeader.substring(7) 
-      : authHeader;
-
     // Verify token
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-      if (err) {
+    const token = authHeader.split(" ")[1];
+
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Find user by id
+      const user = await User.findByPk(decoded.id);
+
+      if (!user) {
         return res.status(401).json({
           success: false,
-          message: 'Invalid token.'
+          message: "User not found",
         });
       }
-      
-      // Add user info to request
-      req.user = decoded;
+
+      // Add user to request object
+      req.user = {
+        id: user.user_id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      };
+
       next();
-    });
+    } catch (error) {
+      return res.status(401).json({
+        success: false,
+        message: "Token is not valid",
+      });
+    }
   } catch (error) {
-    return res.status(500).json({
+    console.error("Auth middleware error:", error);
+    res.status(500).json({
       success: false,
-      message: 'Authentication error.',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: "Server error",
     });
   }
 };
 
 /**
- * Middleware to check if user is admin
+ * Middleware to check if user is an admin or super admin
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
- * @param {Function} next - Express next function
+ * @param {Function} next - Express next middleware function
  */
-const isAdmin = async (req, res, next) => {
-  try {
-    // First verify the token
-    verifyToken(req, res, async () => {
-      // Check if user exists and is admin
-      const user = await User.findByPk(req.user.id);
-      
-      if (!user || !user.is_admin) {
-        return res.status(403).json({
-          success: false,
-          message: 'Access denied. Admin privileges required.'
-        });
-      }
-      
-      next();
-    });
-  } catch (error) {
-    return res.status(500).json({
+const isAdmin = (req, res, next) => {
+  if (
+    !req.user ||
+    (req.user.role !== "admin" && req.user.role !== "super_admin")
+  ) {
+    return res.status(403).json({
       success: false,
-      message: 'Authorization error.',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: "Access denied. Admin role required.",
     });
   }
+  next();
+};
+
+/**
+ * Middleware to check if user is a super admin
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
+const isSuperAdmin = (req, res, next) => {
+  if (!req.user || req.user.role !== "super_admin") {
+    return res.status(403).json({
+      success: false,
+      message: "Access denied. Super Admin role required.",
+    });
+  }
+  next();
 };
 
 module.exports = {
-  verifyToken,
-  isAdmin
+  isAuthenticated,
+  isAdmin,
+  isSuperAdmin,
 };

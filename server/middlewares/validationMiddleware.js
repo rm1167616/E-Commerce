@@ -1,5 +1,4 @@
 const { body, validationResult } = require("express-validator");
-const { User } = require("../models");
 
 /**
  * Middleware to validate request data
@@ -37,35 +36,24 @@ const registerValidationRules = [
     .withMessage("Email is required")
     .isEmail()
     .withMessage("Must be a valid email address")
-    .normalizeEmail()
-    .custom(async (value) => {
-      const user = await User.findOne({ where: { email: value } });
-      if (user) {
-        throw new Error("Email is already in use");
-      }
-      return true;
-    }),
+    .normalizeEmail(),
 
   body("password")
     .notEmpty()
     .withMessage("Password is required")
     .isLength({ min: 6 })
-    .withMessage("Password must be at least 6 characters long")
-    .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])/)
-    .withMessage(
-      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
-    ),
-
-  body("phone_number")
-    .optional()
-    .isMobilePhone()
-    .withMessage("Must be a valid phone number"),
+    .withMessage("Password must be at least 6 characters"),
 
   body("gender")
     .notEmpty()
     .withMessage("Gender is required")
     .isIn(["Male", "Female", "Other"])
     .withMessage("Gender must be Male, Female, or Other"),
+
+  body("phone_number")
+    .optional()
+    .isMobilePhone()
+    .withMessage("Must be a valid phone number"),
 
   body("birthday").optional().isDate().withMessage("Must be a valid date"),
 ];

@@ -5,13 +5,13 @@ CREATE TABLE Users (
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
     phone_number VARCHAR(20),
-    gender ENUM('Male', 'Female') NOT NULL,
+    gender ENUM('Male', 'Female', 'Other') NOT NULL,
     birthday DATE,
-    is_admin BOOLEAN DEFAULT FALSE,
+    role ENUM('super_admin', 'admin', 'client') NOT NULL DEFAULT 'client',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- OPTIONAL ADMIN DATA (only for is_admin = TRUE)
+-- OPTIONAL ADMIN DATA (only for role = 'super_admin' or 'admin')
 CREATE TABLE AdminData (
     admin_id INT PRIMARY KEY,
     security_key VARCHAR(255) NOT NULL,
@@ -41,13 +41,11 @@ CREATE TABLE Stores (
 CREATE TABLE Categories (
     category_id INT AUTO_INCREMENT PRIMARY KEY,
     store_id INT NOT NULL,
-    parent_category_id INT NULL, -- Added for hierarchical categories
     name VARCHAR(100) NOT NULL,
     description TEXT,
     img_path TEXT,
     seen_number INT DEFAULT 0,
-    FOREIGN KEY (store_id) REFERENCES Stores(store_id) ON DELETE CASCADE,
-    FOREIGN KEY (parent_category_id) REFERENCES Categories(category_id) ON DELETE SET NULL
+    FOREIGN KEY (store_id) REFERENCES Stores(store_id) ON DELETE CASCADE
 );
 
 -- PRODUCTS
