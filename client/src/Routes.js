@@ -23,7 +23,7 @@ import NavSettingsForm from "./component/AdminCycle/Forms/NavSettingsForm";
 import PagesManagement from "./component/AdminCycle/Pages/PagesManagement"; 
 import PageSettingsForm from "./component/AdminCycle/Forms/PageForm"; 
 import AboutUsForm from "./component/AdminCycle/Forms/AboutUsForm"; 
-
+import Contact from './component/Contact Page/Contact.jsx'
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -33,6 +33,8 @@ export const router = createBrowserRouter([
       { path: "about",    element: <About /> },     // "/about"
       { path: "profile",  element: <Profile /> },   // "/profile"
       { path: "wishlist", element: <WishList /> },  // "/wishlist"
+      { path: "wishlist", element: <WishList /> },  // "/wishlist"
+      { path: "Contact", element: <Contact /> }  // "/wishlist"
     ]
   },
   {
