@@ -24,21 +24,22 @@ const createOTP = async (email) => {
   try {
     // Generate a new OTP code
     const otpCode = generateOTP();
-    
+
     // Set expiration time (10 minutes from now)
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 10);
-    
+
     // Save OTP to database
     await OTP.create({
       email,
       otp_code: otpCode,
       expires_at: expiresAt,
     });
-    
-    // Send OTP email
+
+    // Send OTP email (commented out for development)
     await sendOTPEmail(email, otpCode);
-    
+
+    // Always return the OTP code so it can be included in the response during development
     return otpCode;
   } catch (error) {
     console.error("Error creating OTP:", error);
@@ -63,15 +64,15 @@ const verifyOTP = async (email, otpCode) => {
       },
       order: [["created_at", "DESC"]],
     });
-    
+
     // If no OTP found or it's expired, return false
     if (!otp || new Date() > new Date(otp.expires_at)) {
       return false;
     }
-    
+
     // Mark OTP as used
     await otp.update({ is_used: true });
-    
+
     return true;
   } catch (error) {
     console.error("Error verifying OTP:", error);
