@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const cartController = require("../controllers/cartController");
 const { isAuthenticated } = require("../middlewares/authMiddleware");
-const { validate, body, param } = require("express-validator");
+const { validate } = require("../middlewares/validationMiddleware");
+const { body, param } = require("express-validator");
 
 /**
  * @swagger
@@ -118,8 +119,11 @@ router.post(
   isAuthenticated,
   [
     body("product_id").isInt().withMessage("Product ID must be an integer"),
-    body("quantity").optional().isInt({ min: 1 }).withMessage("Quantity must be at least 1"),
-    body("selected_attributes").optional()
+    body("quantity")
+      .optional()
+      .isInt({ min: 1 })
+      .withMessage("Quantity must be at least 1"),
+    body("selected_attributes").optional(),
   ],
   validate,
   cartController.addToCart
@@ -242,11 +246,7 @@ router.post(
  *       500:
  *         description: Server error
  */
-router.get(
-  "/",
-  isAuthenticated,
-  cartController.getCartItems
-);
+router.get("/", isAuthenticated, cartController.getCartItems);
 
 /**
  * @swagger
@@ -306,7 +306,9 @@ router.put(
   isAuthenticated,
   [
     param("id").isInt().withMessage("Cart item ID must be an integer"),
-    body("quantity").isInt({ min: 1 }).withMessage("Quantity must be at least 1")
+    body("quantity")
+      .isInt({ min: 1 })
+      .withMessage("Quantity must be at least 1"),
   ],
   validate,
   cartController.updateCartItem
@@ -351,9 +353,7 @@ router.put(
 router.delete(
   "/:id",
   isAuthenticated,
-  [
-    param("id").isInt().withMessage("Cart item ID must be an integer")
-  ],
+  [param("id").isInt().withMessage("Cart item ID must be an integer")],
   validate,
   cartController.removeCartItem
 );
