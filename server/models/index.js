@@ -18,6 +18,7 @@ const Cart = require("./Cart");
 const UserStore = require("./UserStore");
 const UserProduct = require("./UserProduct");
 const Review = require("./Review");
+const OTP = require("./OTP");
 
 // Define associations
 
@@ -208,4 +209,5 @@ module.exports = {
   UserStore,
   UserProduct,
   Review,
+  OTP,
 };
