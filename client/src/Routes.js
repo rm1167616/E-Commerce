@@ -16,6 +16,7 @@ import OfferTable from "./component/AdminCycle/tables/OfferTable";
 import AddOffer from "./component/AdminCycle/Forms/AddOffer";
 import UsersTable from "./component/AdminCycle/tables/UsersTable";
 import AddUserForm from "./component/AdminCycle/Forms/AddUserForm";
+import NavSettingsForm from "./component/AdminCycle/Forms/NavSettingsForm";
 
 
 
@@ -41,6 +42,7 @@ export const router = createBrowserRouter([
       { path: "AddOffer", element: <AddOffer /> }, // ✅ fixed here 
       { path: "UsersTable", element: <UsersTable /> }, // ✅ fixed here 
       { path: "AddUserForm", element: <AddUserForm /> }, // ✅ fixed here 
+      { path: "NavSettingsForm", element: <NavSettingsForm /> }, // ✅ fixed here 
     ],
   },
   {

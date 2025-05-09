@@ -78,6 +78,15 @@ const Sidebar = () => {
       ]
     },
     {
+      name: 'Header Setting',
+      icon: <FiUsers className="nav-icon" />,
+      path: '/admin/users',
+      subItems: [
+        { name: 'Header Setting', path: '/admin/NavSettingsForm' },
+     
+      ]
+    },
+    {
       name: 'Reviews',
       icon: <FiBell className="nav-icon" />,
       path: '/admin/reviews',
