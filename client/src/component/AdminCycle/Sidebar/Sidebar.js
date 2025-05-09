@@ -42,7 +42,7 @@ const Sidebar = () => {
     },
     {
       name: 'Products',
-      icon: <FiSettings className="nav-icon" />,
+      icon: <FiGrid className="nav-icon" />,
       path: '/admin/products',
       subItems: [
         { name: 'All Products', path: '/admin/ProductShow' },
@@ -52,7 +52,7 @@ const Sidebar = () => {
     },
     {
       name: 'Categories',
-      icon: <FiUsers className="nav-icon" />,
+      icon: <FiGrid className="nav-icon" />,
       path: '/admin/users',
       subItems: [
         { name: 'All Categories', path: '/admin/CategoryForm' },
@@ -61,7 +61,7 @@ const Sidebar = () => {
     },
     {
       name: 'Offer',
-      icon: <FiUsers className="nav-icon" />,
+      icon: <FiGrid className="nav-icon" />,
       path: '/admin/users',
       subItems: [
         { name: 'All Offers', path: '/admin/OfferTable' },
@@ -79,9 +79,20 @@ const Sidebar = () => {
     },
     {
       name: 'Header Setting',
-      icon: <FiUsers className="nav-icon" />,
+      icon: <FiSettings className="nav-icon" />,
       path: '/admin/NavSettingsForm',
       subItems: []
+    },
+    {
+      name: 'Pages Setting',
+      icon: <FiSettings className="nav-icon" />,
+      path: '/admin/users',
+      subItems: [
+        { name: 'All Pages', path: '/admin/PagesManagement' },
+        { name: 'Pages Setting', path: '/admin/PageSettingsForm' },
+        { name: 'About US', path: '/admin/AboutUsForm' },
+        { name: 'Contact US', path: '/admin/ContactUsForm' },
+      ]
     },
     {
       name: 'Reviews',
