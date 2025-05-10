@@ -73,7 +73,7 @@ const UsersTable = () => {
   const renderActionHistory = (history) => {
     return (
       <Dropdown>
-        <Dropdown.Toggle variant="link" id="dropdown-action-history">
+        <Dropdown.Toggle variant="link" id="dropdown-action-history" className='history'>
           View History
         </Dropdown.Toggle>
         <Dropdown.Menu>

@@ -11,10 +11,11 @@ import { ArrowCounterclockwise, Send } from 'react-bootstrap-icons';
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
+    email: 'strategystarsads@gmail.com',
+    phone: '+20 111 333 7724, +20 111 222 1449',
+    address: 'Almaza Street from Thawra Street - Heliopolis, Cairo, Egypt',
+    hours: 'Monday-Friday, 9AM-5PM',
+    adminEmail: 'strategystarsads@gmail.com'
   });
   
   const [errors, setErrors] = useState({});
@@ -40,14 +41,29 @@ const ContactForm = () => {
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.name.trim()) newErrors.name = 'Name is required';
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email';
     }
-    if (!formData.subject.trim()) newErrors.subject = 'Subject is required';
-    if (!formData.message.trim()) newErrors.message = 'Message is required';
+    
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone is required';
+    }
+    
+    if (!formData.address.trim()) {
+      newErrors.address = 'Address is required';
+    }
+    
+    if (!formData.hours.trim()) {
+      newErrors.hours = 'Working hours are required';
+    }
+    
+    if (!formData.adminEmail.trim()) {
+      newErrors.adminEmail = 'Admin email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.adminEmail)) {
+      newErrors.adminEmail = 'Please enter a valid admin email';
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -62,29 +78,24 @@ const ContactForm = () => {
     
     try {
       // In a real application, you would send this data to your backend
-      // which would then send the email to the admin
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...formData,
-          adminEmail: 'strategystarsads@gmail.com' // Send to admin email
-        }),
+        body: JSON.stringify(formData),
       });
       
       if (response.ok) {
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 5000);
-        resetForm();
       } else {
-        throw new Error('Failed to send message');
+        throw new Error('Failed to update contact information');
       }
     } catch (error) {
       setErrors({
         ...errors,
-        submit: 'There was an error sending your message. Please try again later.'
+        submit: 'There was an error updating the information. Please try again later.'
       });
     } finally {
       setIsSubmitting(false);
@@ -93,10 +104,11 @@ const ContactForm = () => {
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      email: '',
-      subject: '',
-      message: ''
+      email: 'strategystarsads@gmail.com',
+      phone: '+20 111 333 7724, +20 111 222 1449',
+      address: 'Almaza Street from Thawra Street - Heliopolis, Cairo, Egypt',
+      hours: 'Monday-Friday, 9AM-5PM',
+      adminEmail: 'strategystarsads@gmail.com'
     });
     setErrors({});
   };
@@ -104,29 +116,12 @@ const ContactForm = () => {
   return (
     <Card className="shadow-sm mt-4">
       <Card.Header as="h5" className="py-3 bg-light">
-        Contact Us
+        Update Contact Information
       </Card.Header>
       <Card.Body>
-        <Row className="mb-4">
-          <Col md={6}>
-            <h6>Contact Information</h6>
-            <p>
-              <strong>Email:</strong> strategystarsads@gmail.com<br />
-              <strong>Phone:</strong> +20 111 333 7724, +20 111 222 1449<br />
-              <strong>Address:</strong> Almaza Street from Thawra Street - Heliopolis, Cairo, Egypt<br />
-              <strong>Hours:</strong> Monday-Friday, 9AM-5PM
-            </p>
-          </Col>
-          <Col md={6}>
-            <p className="text-muted">
-              For immediate assistance, please use the contact form or call us directly.
-            </p>
-          </Col>
-        </Row>
-
         {showSuccess && (
           <Alert variant="success" onClose={() => setShowSuccess(false)} dismissible>
-            Your message has been sent successfully! We'll get back to you soon.
+            Contact information updated successfully!
           </Alert>
         )}
 
@@ -137,21 +132,6 @@ const ContactForm = () => {
         )}
 
         <Form onSubmit={handleSubmit}>
-          <Form.Group className="mb-3" controlId="formName">
-            <Form.Label>Your Name</Form.Label>
-            <Form.Control
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Enter your name"
-              isInvalid={!!errors.name}
-            />
-            <Form.Control.Feedback type="invalid">
-              {errors.name}
-            </Form.Control.Feedback>
-          </Form.Group>
-
           <Form.Group className="mb-3" controlId="formEmail">
             <Form.Label>Email Address</Form.Label>
             <Form.Control
@@ -159,7 +139,7 @@ const ContactForm = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="Enter your email"
+              placeholder="Enter email address"
               isInvalid={!!errors.email}
             />
             <Form.Control.Feedback type="invalid">
@@ -167,35 +147,74 @@ const ContactForm = () => {
             </Form.Control.Feedback>
           </Form.Group>
 
-          <Form.Group className="mb-3" controlId="formSubject">
-            <Form.Label>Subject</Form.Label>
+          <Form.Group className="mb-3" controlId="formPhone">
+            <Form.Label>Phone Numbers</Form.Label>
             <Form.Control
               type="text"
-              name="subject"
-              value={formData.subject}
+              name="phone"
+              value={formData.phone}
               onChange={handleChange}
-              placeholder="Enter subject"
-              isInvalid={!!errors.subject}
+              placeholder="Enter phone numbers"
+              isInvalid={!!errors.phone}
             />
             <Form.Control.Feedback type="invalid">
-              {errors.subject}
+              {errors.phone}
+            </Form.Control.Feedback>
+            <Form.Text className="text-muted">
+              Separate multiple numbers with commas
+            </Form.Text>
+          </Form.Group>
+
+          <Form.Group className="mb-3" controlId="formAddress">
+            <Form.Label>Address</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={2}
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              placeholder="Enter full address"
+              isInvalid={!!errors.address}
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.address}
             </Form.Control.Feedback>
           </Form.Group>
 
-          <Form.Group className="mb-3" controlId="formMessage">
-            <Form.Label>Message</Form.Label>
+          <Form.Group className="mb-3" controlId="formHours">
+            <Form.Label>Working Hours</Form.Label>
             <Form.Control
-              as="textarea"
-              rows={5}
-              name="message"
-              value={formData.message}
+              type="text"
+              name="hours"
+              value={formData.hours}
               onChange={handleChange}
-              placeholder="Enter your message"
-              isInvalid={!!errors.message}
+              placeholder="Enter working hours"
+              isInvalid={!!errors.hours}
             />
             <Form.Control.Feedback type="invalid">
-              {errors.message}
+              {errors.hours}
             </Form.Control.Feedback>
+            <Form.Text className="text-muted">
+              Example: Monday-Friday, 9AM-5PM
+            </Form.Text>
+          </Form.Group>
+
+          <Form.Group className="mb-3" controlId="formAdminEmail">
+            <Form.Label>Admin Email Address</Form.Label>
+            <Form.Control
+              type="email"
+              name="adminEmail"
+              value={formData.adminEmail}
+              onChange={handleChange}
+              placeholder="Enter admin email"
+              isInvalid={!!errors.adminEmail}
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.adminEmail}
+            </Form.Control.Feedback>
+            <Form.Text className="text-muted">
+              This is the email address that will receive contact form messages
+            </Form.Text>
           </Form.Group>
 
           <div className="d-flex justify-content-end gap-2">
@@ -214,10 +233,10 @@ const ContactForm = () => {
               className="px-4 d-flex align-items-center gap-1"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Sending...' : (
+              {isSubmitting ? 'Updating...' : (
                 <>
                   <Send size={16} />
-                  Send Message
+                  Update Information
                 </>
               )}
             </Button>

@@ -29,6 +29,7 @@ import PagesManagement from "./component/AdminCycle/Pages/PagesManagement";
 import PageSettingsForm from "./component/AdminCycle/Forms/PageForm"; 
 import AboutUsForm from "./component/AdminCycle/Forms/AboutUsForm"; 
 import ContactForm from "./component/AdminCycle/Forms/ContactUsForm"; 
+import ReviewsTable from "./component/AdminCycle/tables/ReviewTable"; 
 
 
 export const router = createBrowserRouter([
@@ -67,6 +68,7 @@ export const router = createBrowserRouter([
       { path: "PageSettingsForm", element: <PageSettingsForm /> }, // ✅ fixed here 
       { path: "AboutUsForm", element: <AboutUsForm /> }, // ✅ fixed heree 
       { path: "ContactForm", element: <ContactForm /> }, // ✅ fixed heree 
+      { path: "ReviewsTable", element: <ReviewsTable /> }, // ✅ fixed heree 
 
     ],
   },

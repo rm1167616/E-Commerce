@@ -97,7 +97,13 @@ const Sidebar = () => {
     {
       name: 'Reviews',
       icon: <FiBell className="nav-icon" />,
-      path: '/admin/reviews',
+      path: '/admin/ReviewsTable',
+      subItems: []
+    },
+    {
+      name: 'Shipping',
+      icon: <FiBell className="nav-icon" />,
+      path: '/admin/Shipping',
       subItems: []
     },
     {
