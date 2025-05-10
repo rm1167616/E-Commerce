@@ -90,11 +90,11 @@ const ProductsCarousel = () => {
           nextIcon={<CustomNextButton />}
           interval={null}
         >
-          {[...Array(Math.ceil(newArrivals.length / 5.5))].map((_, slideIndex) => (
+          {[...Array(Math.ceil(newArrivals.length / 4.5))].map((_, slideIndex) => (
             <Carousel.Item key={`new-arrivals-${slideIndex}`}>
               <Row className="g-4">
-                {newArrivals.slice(slideIndex * 5, (slideIndex * 5) + 6).map((product) => (
-                  <Col key={product.id} lg={2} md={4} sm={6} className="d-flex">
+                {newArrivals.slice(slideIndex * 5, (slideIndex * 5) + 4).map((product) => (
+                  <Col key={product.id} lg={3} md={4} sm={12} className="d-flex">
                     <Card className="product-card flex-grow-1">
                       <div className="product-image-container">
                         <img 
@@ -102,7 +102,7 @@ const ProductsCarousel = () => {
                           alt={product.title}
                           className="product-image"
                           onError={(e) => {
-                            e.target.src = 'https://via.placeholder.com/300x200?text=Product+Image';
+                            e.target.src = 'product-image-placeholder';
                           }}
                         />
                         <div className="discount-badge">{product.discount}</div>
@@ -137,11 +137,11 @@ const ProductsCarousel = () => {
           nextIcon={<CustomNextButton />}
           interval={null}
         >
-          {[...Array(Math.ceil(topOffers.length / 5.5))].map((_, slideIndex) => (
+          {[...Array(Math.ceil(topOffers.length / 4.5))].map((_, slideIndex) => (
             <Carousel.Item key={`top-offers-${slideIndex}`}>
               <Row className="g-4">
-                {topOffers.slice(slideIndex * 5, (slideIndex * 5) + 6).map((product) => (
-                  <Col key={product.id} lg={2} md={4} sm={6} className="d-flex">
+                {topOffers.slice(slideIndex * 5, (slideIndex * 5) + 4).map((product) => (
+                  <Col key={product.id} lg={3} md={4} sm={6} className="d-flex">
                     <Card className="product-card flex-grow-1">
                       <div className="product-image-container">
                         <img 
@@ -149,7 +149,7 @@ const ProductsCarousel = () => {
                           alt={product.title}
                           className="product-image"
                           onError={(e) => {
-                            e.target.src = 'https://via.placeholder.com/300x200?text=Product+Image';
+                            e.target.src = 'product-image-placeholder';
                           }}
                         />
                         <div className="discount-badge">{product.discount}</div>

@@ -4,6 +4,7 @@
 
 import BannerCarousel from './HomeSection/BannerCarousel';
 import ProductsCarousel from './HomeSection/ProductsCarousel';
+import CategorySection from './HomeSection/CategorySection';
 import CardTemplate2 from '../Template1/Cards/Sections/CardTemplate2';
 
 
@@ -17,7 +18,7 @@ import CardTemplate2 from '../Template1/Cards/Sections/CardTemplate2';
     
      <BannerCarousel/>
      <ProductsCarousel/>
-     <CardTemplate2/>
+     <CategorySection/>
  
 
     </div>
