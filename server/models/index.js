@@ -19,6 +19,10 @@ const UserStore = require("./UserStore");
 const UserProduct = require("./UserProduct");
 const Review = require("./Review");
 const OTP = require("./OTP");
+const About = require("./About");
+const AboutSection = require("./AboutSection");
+const PageSettings = require("./PageSettings");
+const AboutPage = require("./AboutPage");
 
 // Define associations
 
@@ -48,6 +52,17 @@ Store.hasMany(Offer, { foreignKey: "store_id", onDelete: "CASCADE" });
 Store.hasMany(Order, { foreignKey: "store_id" });
 Store.hasMany(Cart, { foreignKey: "store_id" });
 Store.hasMany(UserStore, { foreignKey: "store_id", onDelete: "CASCADE" });
+Store.hasOne(About, { foreignKey: "store_id", onDelete: "CASCADE" });
+Store.hasOne(AboutPage, {
+  foreignKey: "store_id",
+});
+
+// About associations
+About.belongsTo(Store, { foreignKey: "store_id", onDelete: "CASCADE" });
+About.hasMany(AboutSection, { foreignKey: "about_id", onDelete: "CASCADE" });
+
+// AboutSection associations
+AboutSection.belongsTo(About, { foreignKey: "about_id", onDelete: "CASCADE" });
 
 // Category associations
 Category.belongsTo(Store, { foreignKey: "store_id", onDelete: "CASCADE" });
@@ -161,6 +176,16 @@ UserProduct.belongsTo(Product, {
 Review.belongsTo(User, { foreignKey: "user_id" });
 Review.belongsTo(Product, { foreignKey: "product_id", onDelete: "CASCADE" });
 
+// AboutPage associations
+AboutPage.hasMany(AboutSection, {
+  foreignKey: "about_id",
+  as: "AboutSections",
+});
+
+AboutSection.belongsTo(AboutPage, {
+  foreignKey: "about_id",
+});
+
 // Sync all models with the database
 // Note: In production, you might want to use migrations instead
 const syncDatabase = async () => {
@@ -210,4 +235,8 @@ module.exports = {
   UserProduct,
   Review,
   OTP,
+  About,
+  AboutSection,
+  PageSettings,
+  AboutPage,
 };

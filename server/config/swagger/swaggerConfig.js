@@ -1,25 +1,25 @@
-const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerJsdoc = require("swagger-jsdoc");
 
 const options = {
   definition: {
-    openapi: '3.0.0',
+    openapi: "3.0.0",
     info: {
-      title: 'E-Commerce API',
-      version: '1.0.0',
-      description: 'API documentation for E-Commerce application',
+      title: "E-Commerce API",
+      version: "1.0.0",
+      description: "API documentation for E-Commerce application",
     },
     servers: [
       {
-        url: '/api',
-        description: 'API Server',
+        url: "/",
+        description: "API Server",
       },
     ],
     components: {
       securitySchemes: {
         bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
         },
       },
     },
@@ -29,7 +29,7 @@ const options = {
       },
     ],
   },
-  apis: ['./routes/*.js', './controllers/*.js'],
+  apis: ["./routes/*.js", "./controllers/*.js"],
 };
 
 const swaggerSpec = swaggerJsdoc(options);

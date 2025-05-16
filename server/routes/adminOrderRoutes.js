@@ -9,21 +9,11 @@ const { body, param, query } = require("express-validator");
  * @swagger
  * /api/admin/orders:
  *   get:
- *     summary: Get all orders (admin)
+ *     summary: Get all orders for the authenticated user's store (admin)
  *     tags: [Orders]
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: query
- *         name: user_id
- *         schema:
- *           type: integer
- *         description: Filter by user ID
- *       - in: query
- *         name: store_id
- *         schema:
- *           type: integer
- *         description: Filter by store ID
  *       - in: query
  *         name: status
  *         schema:
@@ -78,7 +68,7 @@ const { body, param, query } = require("express-validator");
  *         description: Number of items per page
  *     responses:
  *       200:
- *         description: List of all orders
+ *         description: List of orders for the authenticated user's store
  *         content:
  *           application/json:
  *             schema:

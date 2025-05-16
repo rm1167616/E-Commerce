@@ -816,22 +816,92 @@ router.get("/search", productController.searchProducts);
  */
 router.get("/:id", productController.getProductById);
 
+/**
+ * @swagger
+ * /api/products/store:
+ *   get:
+ *     summary: Get products for authenticated user's store
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search term for product name
+ *       - in: query
+ *         name: min_price
+ *         schema:
+ *           type: number
+ *         description: Minimum price filter
+ *       - in: query
+ *         name: max_price
+ *         schema:
+ *           type: number
+ *         description: Maximum price filter
+ *       - in: query
+ *         name: min_stock
+ *         schema:
+ *           type: integer
+ *         description: Minimum stock quantity filter
+ *       - in: query
+ *         name: max_stock
+ *         schema:
+ *           type: integer
+ *         description: Maximum stock quantity filter
+ *       - in: query
+ *         name: sort_by
+ *         schema:
+ *           type: string
+ *           enum: [name, price, stock_quantity, seen_number, created_at]
+ *         description: Field to sort by
+ *       - in: query
+ *         name: sort_order
+ *         schema:
+ *           type: string
+ *           enum: [ASC, DESC]
+ *         description: Sort order
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Number of items per page
+ *       - in: query
+ *         name: category_id
+ *         schema:
+ *           type: integer
+ *         description: Filter by category ID
+ *     responses:
+ *       200:
+ *         description: List of products
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Store not found
+ *       500:
+ *         description: Server error
+ */
+router.get("/store", isAuthenticated, productController.getUserStoreProducts);
+
 // Admin routes
 
 /**
  * @swagger
  * /api/admin/products:
  *   get:
- *     summary: Get all products (admin access)
+ *     summary: Get all products for store admin
  *     tags: [Products]
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: query
- *         name: store_id
- *         schema:
- *           type: integer
- *         description: Filter by store ID
  *       - in: query
  *         name: category_id
  *         schema:
@@ -888,11 +958,11 @@ router.get("/:id", productController.getProductById);
  *         description: Number of items per page
  *     responses:
  *       200:
- *         description: List of products
+ *         description: List of products for the store
  *       401:
  *         description: Not authenticated
  *       403:
- *         description: Not authorized as admin
+ *         description: Not authorized as store admin
  *       500:
  *         description: Server error
  */
@@ -918,265 +988,46 @@ router.get(
  *           schema:
  *             type: object
  *             required:
- *               - store_id
  *               - name
+ *               - main_description
  *               - price
  *             properties:
- *               store_id:
- *                 type: integer
- *                 example: 2
  *               name:
  *                 type: string
- *                 example: "Wireless Headphones"
  *               main_description:
  *                 type: string
- *                 example: "High-quality wireless headphones with noise cancellation"
  *               price:
  *                 type: number
- *                 format: float
- *                 example: 99.99
  *               stock_quantity:
  *                 type: integer
- *                 example: 50
  *               category_id:
  *                 type: integer
- *                 example: 5
  *               images:
  *                 type: array
  *                 items:
- *                   type: object
- *                   properties:
- *                     img_path:
- *                       type: string
- *                       example: "/images/products/headphones.jpg"
- *                     is_main:
- *                       type: boolean
- *                       example: true
+ *                   type: string
  *               attributes:
  *                 type: array
  *                 items:
  *                   type: object
  *                   properties:
- *                     attribute_id:
- *                       type: integer
- *                       example: 2
- *                     option_ids:
+ *                     name:
+ *                       type: string
+ *                     values:
  *                       type: array
  *                       items:
- *                         type: integer
- *                       example: [7, 8]
+ *                         type: string
  *     responses:
  *       201:
  *         description: Product created successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "Product created successfully"
- *                 data:
- *                   type: object
- *                   properties:
- *                     product_id:
- *                       type: integer
- *                       example: 1
- *                     store_id:
- *                       type: integer
- *                       example: 2
- *                     name:
- *                       type: string
- *                       example: "Wireless Headphones"
- *                     main_description:
- *                       type: string
- *                       example: "High-quality wireless headphones with noise cancellation"
- *                     price:
- *                       type: number
- *                       format: float
- *                       example: 99.99
- *                     stock_quantity:
- *                       type: integer
- *                       example: 50
- *                     seen_number:
- *                       type: integer
- *                       example: 0
- *                     category_id:
- *                       type: integer
- *                       example: 5
- *                     created_by:
- *                       type: integer
- *                       example: 1
- *                     created_at:
- *                       type: string
- *                       format: date-time
- *                       example: "2023-05-20T10:30:00Z"
- *                     Category:
- *                       type: object
- *                       properties:
- *                         category_id:
- *                           type: integer
- *                           example: 5
- *                         name:
- *                           type: string
- *                           example: "Electronics"
- *                     Store:
- *                       type: object
- *                       properties:
- *                         store_id:
- *                           type: integer
- *                           example: 2
- *                         name:
- *                           type: string
- *                           example: "Tech Store"
- *                     ProductImages:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           id:
- *                             type: integer
- *                             example: 10
- *                           img_path:
- *                             type: string
- *                             example: "/images/products/headphones.jpg"
- *                           is_main:
- *                             type: boolean
- *                             example: true
- *                     ProductAttributeValues:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           id:
- *                             type: integer
- *                             example: 5
- *                           ProductAttribute:
- *                             type: object
- *                             properties:
- *                               attribute_id:
- *                                 type: integer
- *                                 example: 2
- *                               name:
- *                                 type: string
- *                                 example: "Color"
- *                           AttributeOption:
- *                             type: object
- *                             properties:
- *                               option_id:
- *                                 type: integer
- *                                 example: 7
- *                               value:
- *                                 type: string
- *                                 example: "Black"
  *       400:
- *         description: Invalid input data
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: "Validation error"
- *                 errors:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       field:
- *                         type: string
- *                         example: "price"
- *                       message:
- *                         type: string
- *                         example: "Price must be a positive number"
+ *         description: Invalid input
  *       401:
- *         description: Not authenticated
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: "No token provided, authorization denied"
- *       403:
- *         description: Not authorized as admin
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: "Access denied. Admin role required."
- *       404:
- *         description: Store or category not found
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: "Store not found"
+ *         description: Unauthorized
  *       500:
  *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: "Failed to create product"
- *                 error:
- *                   type: string
- *                   example: "Error message details (only in development mode)"
  */
-router.post(
-  "/products",
-  isAuthenticated,
-  isAdmin,
-  [
-    body("store_id").isInt().withMessage("Store ID must be an integer"),
-    body("name").notEmpty().withMessage("Name is required"),
-    body("price")
-      .isFloat({ min: 0 })
-      .withMessage("Price must be a positive number"),
-    body("stock_quantity")
-      .optional()
-      .isInt({ min: 0 })
-      .withMessage("Stock quantity must be a non-negative integer"),
-    body("category_id")
-      .optional()
-      .isInt()
-      .withMessage("Category ID must be an integer"),
-    body("main_description").optional(),
-    body("images").optional().isArray(),
-    body("attributes").optional().isArray(),
-  ],
-  validate,
-  productController.createProduct
-);
+router.post("/", isAuthenticated, isAdmin, productController.createProduct);
 
 /**
  * @swagger
@@ -1194,13 +1045,12 @@ router.post(
  *           type: integer
  *         description: Product ID
  *     requestBody:
+ *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
  *             properties:
- *               store_id:
- *                 type: integer
  *               name:
  *                 type: string
  *               main_description:
@@ -1214,69 +1064,31 @@ router.post(
  *               images:
  *                 type: array
  *                 items:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                     path:
- *                       type: string
- *                     is_main:
- *                       type: boolean
- *                     status:
- *                       type: string
- *                       enum: [active, inactive]
+ *                   type: string
  *               attributes:
  *                 type: array
  *                 items:
  *                   type: object
  *                   properties:
- *                     attribute_id:
- *                       type: integer
- *                     option_id:
- *                       type: integer
+ *                     name:
+ *                       type: string
+ *                     values:
+ *                       type: array
+ *                       items:
+ *                         type: string
  *     responses:
  *       200:
  *         description: Product updated successfully
  *       400:
- *         description: Invalid input data
+ *         description: Invalid input
  *       401:
- *         description: Not authenticated
- *       403:
- *         description: Not authorized as admin
+ *         description: Unauthorized
  *       404:
- *         description: Product, store, or category not found
+ *         description: Product not found
  *       500:
  *         description: Server error
  */
-router.put(
-  "/products/:id",
-  isAuthenticated,
-  isAdmin,
-  [
-    body("store_id")
-      .optional()
-      .isInt()
-      .withMessage("Store ID must be an integer"),
-    body("name").optional().notEmpty().withMessage("Name cannot be empty"),
-    body("price")
-      .optional()
-      .isFloat({ min: 0 })
-      .withMessage("Price must be a positive number"),
-    body("stock_quantity")
-      .optional()
-      .isInt({ min: 0 })
-      .withMessage("Stock quantity must be a non-negative integer"),
-    body("category_id")
-      .optional()
-      .isInt()
-      .withMessage("Category ID must be an integer"),
-    body("main_description").optional(),
-    body("images").optional().isArray(),
-    body("attributes").optional().isArray(),
-  ],
-  validate,
-  productController.updateProduct
-);
+router.put("/:id", isAuthenticated, isAdmin, productController.updateProduct);
 
 /**
  * @swagger

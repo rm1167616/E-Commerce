@@ -1,22 +1,124 @@
-const { Cart, Product, Store } = require("../models");
+const { Cart, CartItem, Product, Store } = require("../models");
 const { Op } = require("sequelize");
+
+// Helper function to get store from auth user
+const getStoreFromAuth = async (user_id) => {
+  const store = await Store.findOne({
+    where: { created_by: user_id }
+  });
+
+  if (!store) {
+    throw new Error("Store not found for this user");
+  }
+
+  return store;
+};
+
+/**
+ * @desc    Get user's cart
+ * @route   GET /api/cart
+ * @access  Private
+ */
+const getCart = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+
+    // Get store from auth user
+    const store = await getStoreFromAuth(req.user.user_id);
+
+    // Build where conditions
+    const whereConditions = {
+      user_id: req.user.user_id,
+      store_id: store.store_id // Only get cart items for this store
+    };
+
+    // Calculate pagination
+    const pageNumber = parseInt(page) > 0 ? parseInt(page) : 1;
+    const limitNumber = parseInt(limit) > 0 ? parseInt(limit) : 10;
+    const offset = (pageNumber - 1) * limitNumber;
+
+    // Get total count for pagination
+    const totalCount = await Cart.count({ where: whereConditions });
+
+    // Get cart items with pagination
+    const cartItems = await Cart.findAll({
+      where: whereConditions,
+      order: [["created_at", "DESC"]],
+      limit: limitNumber,
+      offset: offset,
+      include: [
+        {
+          model: Product,
+          attributes: [
+            "product_id",
+            "name",
+            "price",
+            "stock_quantity",
+            "img_path",
+          ],
+        },
+      ],
+    });
+
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(totalCount / limitNumber);
+    const hasNextPage = pageNumber < totalPages;
+    const hasPrevPage = pageNumber > 1;
+
+    // Calculate total amount
+    const totalAmount = cartItems.reduce(
+      (sum, item) => sum + item.quantity * item.Product.price,
+      0
+    );
+
+    res.status(200).json({
+      success: true,
+      count: cartItems.length,
+      total_amount: totalAmount,
+      data: cartItems,
+      pagination: {
+        total_items: totalCount,
+        total_pages: totalPages,
+        current_page: pageNumber,
+        items_per_page: limitNumber,
+        has_next_page: hasNextPage,
+        has_prev_page: hasPrevPage,
+      },
+    });
+  } catch (error) {
+    console.error("Error getting cart:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to get cart",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
 
 /**
  * @desc    Add item to cart
- * @route   POST /api/cart
+ * @route   POST /api/cart/items
  * @access  Private
  */
 const addToCart = async (req, res) => {
   try {
-    const { product_id, quantity = 1, selected_attributes } = req.body;
-    const user_id = req.user.id;
+    const { product_id, quantity = 1 } = req.body;
 
-    // Check if product exists
-    const product = await Product.findByPk(product_id);
+    // Get store from auth user
+    const store = await getStoreFromAuth(req.user.user_id);
+
+    // Check if product exists and belongs to the store
+    const product = await Product.findOne({
+      where: {
+        product_id,
+        store_id: store.store_id,
+      },
+    });
+
     if (!product) {
       return res.status(404).json({
         success: false,
-        message: "Product not found",
+        message: "Product not found in this store",
       });
     }
 
@@ -28,81 +130,84 @@ const addToCart = async (req, res) => {
       });
     }
 
-    // Check if item already exists in cart
-    const existingCartItem = await Cart.findOne({
+    // Get or create cart
+    let [cart] = await Cart.findOrCreate({
       where: {
-        user_id,
-        product_id,
-        selected_attributes: selected_attributes
-          ? JSON.stringify(selected_attributes)
-          : null,
+        user_id: req.user.user_id,
+        store_id: store.store_id,
       },
     });
 
-    if (existingCartItem) {
-      // Update quantity
-      const newQuantity = existingCartItem.quantity + quantity;
+    // Check if item already exists in cart
+    const existingItem = await CartItem.findOne({
+      where: {
+        cart_id: cart.cart_id,
+        product_id,
+      },
+    });
+
+    if (existingItem) {
+      // Update quantity if item exists
+      const newQuantity = existingItem.quantity + quantity;
 
       // Check if new quantity exceeds stock
-      if (newQuantity > product.stock_quantity) {
+      if (product.stock_quantity < newQuantity) {
         return res.status(400).json({
           success: false,
-          message: "Cannot add more of this item (exceeds available stock)",
+          message: "Not enough stock available",
         });
       }
 
-      await existingCartItem.update({ quantity: newQuantity });
-
-      // Fetch updated cart item with product details
-      const updatedCartItem = await Cart.findByPk(existingCartItem.cart_id, {
-        include: [
-          {
-            model: Product,
-            attributes: ["product_id", "name", "price", "stock_quantity"],
-          },
-          {
-            model: Store,
-            attributes: ["store_id", "name"],
-          },
-        ],
-      });
-
-      return res.status(200).json({
-        success: true,
-        message: "Cart item quantity updated",
-        data: updatedCartItem,
+      await existingItem.update({ quantity: newQuantity });
+    } else {
+      // Add new item to cart
+      await CartItem.create({
+        cart_id: cart.cart_id,
+        product_id,
+        quantity,
       });
     }
 
-    // Create new cart item
-    const cartItem = await Cart.create({
-      user_id,
-      store_id: product.store_id,
-      product_id,
-      quantity,
-      selected_attributes,
-    });
-
-    // Fetch cart item with product details
-    const newCartItem = await Cart.findByPk(cartItem.cart_id, {
+    // Get updated cart
+    const updatedCart = await Cart.findOne({
+      where: {
+        cart_id: cart.cart_id,
+      },
       include: [
         {
-          model: Product,
-          attributes: ["product_id", "name", "price", "stock_quantity"],
-        },
-        {
-          model: Store,
-          attributes: ["store_id", "name"],
+          model: CartItem,
+          include: [
+            {
+              model: Product,
+              attributes: [
+                "product_id",
+                "name",
+                "price",
+                "stock_quantity",
+                "img_path",
+              ],
+            },
+          ],
         },
       ],
     });
 
-    res.status(201).json({
+    // Calculate total
+    const total = updatedCart.CartItems.reduce((sum, item) => {
+      return sum + item.quantity * item.Product.price;
+    }, 0);
+
+    res.status(200).json({
       success: true,
-      message: "Item added to cart",
-      data: newCartItem,
+      message: "Item added to cart successfully",
+      data: {
+        cart_id: updatedCart.cart_id,
+        items: updatedCart.CartItems,
+        total,
+      },
     });
   } catch (error) {
+    console.error("Error adding item to cart:", error);
     res.status(500).json({
       success: false,
       message: "Failed to add item to cart",
@@ -112,104 +217,29 @@ const addToCart = async (req, res) => {
 };
 
 /**
- * @desc    Get user's cart items
- * @route   GET /api/cart
- * @access  Private
- */
-const getCartItems = async (req, res) => {
-  try {
-    const user_id = req.user.id;
-    const { store_id } = req.query;
-
-    // Build where conditions
-    const whereConditions = { user_id };
-
-    if (store_id) {
-      whereConditions.store_id = store_id;
-    }
-
-    // Get cart items
-    const cartItems = await Cart.findAll({
-      where: whereConditions,
-      include: [
-        {
-          model: Product,
-          attributes: ["product_id", "name", "price", "stock_quantity"],
-        },
-        {
-          model: Store,
-          attributes: ["store_id", "name"],
-        },
-      ],
-      order: [["added_at", "DESC"]],
-    });
-
-    // Group items by store
-    const storeGroups = {};
-    let totalItems = 0;
-    let totalAmount = 0;
-
-    cartItems.forEach((item) => {
-      totalItems += item.quantity;
-      totalAmount += parseFloat(item.Product.price) * item.quantity;
-
-      const storeId = item.store_id;
-      if (!storeGroups[storeId]) {
-        storeGroups[storeId] = {
-          store_id: storeId,
-          store_name: item.Store.name,
-          items: [],
-          store_total: 0,
-        };
-      }
-
-      storeGroups[storeId].items.push(item);
-      storeGroups[storeId].store_total +=
-        parseFloat(item.Product.price) * item.quantity;
-    });
-
-    res.status(200).json({
-      success: true,
-      count: cartItems.length,
-      data: {
-        items: cartItems,
-        stores: Object.values(storeGroups),
-        summary: {
-          total_items: totalItems,
-          total_amount: totalAmount,
-        },
-      },
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to get cart items",
-      error: process.env.NODE_ENV === "development" ? error.message : undefined,
-    });
-  }
-};
-
-/**
  * @desc    Update cart item quantity
- * @route   PUT /api/cart/:id
+ * @route   PUT /api/cart/items/:id
  * @access  Private
  */
 const updateCartItem = async (req, res) => {
   try {
-    const { id } = req.params;
+    const itemId = req.params.id;
     const { quantity } = req.body;
-    const user_id = req.user.id;
 
     // Find cart item
-    const cartItem = await Cart.findOne({
+    const cartItem = await CartItem.findOne({
       where: {
-        cart_id: id,
-        user_id,
+        cart_item_id: itemId,
       },
       include: [
         {
+          model: Cart,
+          where: {
+            user_id: req.user.user_id,
+          },
+        },
+        {
           model: Product,
-          attributes: ["product_id", "name", "price", "stock_quantity"],
         },
       ],
     });
@@ -221,45 +251,57 @@ const updateCartItem = async (req, res) => {
       });
     }
 
-    // Check if quantity is valid
-    if (quantity <= 0) {
+    // Check if new quantity exceeds stock
+    if (cartItem.Product.stock_quantity < quantity) {
       return res.status(400).json({
         success: false,
-        message: "Quantity must be greater than 0",
-      });
-    }
-
-    // Check if quantity exceeds stock
-    if (quantity > cartItem.Product.stock_quantity) {
-      return res.status(400).json({
-        success: false,
-        message: "Quantity exceeds available stock",
+        message: "Not enough stock available",
       });
     }
 
     // Update quantity
     await cartItem.update({ quantity });
 
-    // Fetch updated cart item
-    const updatedCartItem = await Cart.findByPk(cartItem.cart_id, {
+    // Get updated cart
+    const updatedCart = await Cart.findOne({
+      where: {
+        cart_id: cartItem.Cart.cart_id,
+      },
       include: [
         {
-          model: Product,
-          attributes: ["product_id", "name", "price", "stock_quantity"],
-        },
-        {
-          model: Store,
-          attributes: ["store_id", "name"],
+          model: CartItem,
+          include: [
+            {
+              model: Product,
+              attributes: [
+                "product_id",
+                "name",
+                "price",
+                "stock_quantity",
+                "img_path",
+              ],
+            },
+          ],
         },
       ],
     });
 
+    // Calculate total
+    const total = updatedCart.CartItems.reduce((sum, item) => {
+      return sum + item.quantity * item.Product.price;
+    }, 0);
+
     res.status(200).json({
       success: true,
-      message: "Cart item updated",
-      data: updatedCartItem,
+      message: "Cart item updated successfully",
+      data: {
+        cart_id: updatedCart.cart_id,
+        items: updatedCart.CartItems,
+        total,
+      },
     });
   } catch (error) {
+    console.error("Error updating cart item:", error);
     res.status(500).json({
       success: false,
       message: "Failed to update cart item",
@@ -270,20 +312,26 @@ const updateCartItem = async (req, res) => {
 
 /**
  * @desc    Remove item from cart
- * @route   DELETE /api/cart/:id
+ * @route   DELETE /api/cart/items/:id
  * @access  Private
  */
-const removeCartItem = async (req, res) => {
+const removeFromCart = async (req, res) => {
   try {
-    const { id } = req.params;
-    const user_id = req.user.id;
+    const itemId = req.params.id;
 
     // Find cart item
-    const cartItem = await Cart.findOne({
+    const cartItem = await CartItem.findOne({
       where: {
-        cart_id: id,
-        user_id,
+        cart_item_id: itemId,
       },
+      include: [
+        {
+          model: Cart,
+          where: {
+            user_id: req.user.user_id,
+          },
+        },
+      ],
     });
 
     if (!cartItem) {
@@ -293,25 +341,60 @@ const removeCartItem = async (req, res) => {
       });
     }
 
-    // Delete cart item
+    // Delete item
     await cartItem.destroy();
+
+    // Get updated cart
+    const updatedCart = await Cart.findOne({
+      where: {
+        cart_id: cartItem.Cart.cart_id,
+      },
+      include: [
+        {
+          model: CartItem,
+          include: [
+            {
+              model: Product,
+              attributes: [
+                "product_id",
+                "name",
+                "price",
+                "stock_quantity",
+                "img_path",
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    // Calculate total
+    const total = updatedCart.CartItems.reduce((sum, item) => {
+      return sum + item.quantity * item.Product.price;
+    }, 0);
 
     res.status(200).json({
       success: true,
-      message: "Item removed from cart",
+      message: "Item removed from cart successfully",
+      data: {
+        cart_id: updatedCart.cart_id,
+        items: updatedCart.CartItems,
+        total,
+      },
     });
   } catch (error) {
+    console.error("Error removing item from cart:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to remove cart item",
+      message: "Failed to remove item from cart",
       error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
 
 module.exports = {
+  getCart,
   addToCart,
-  getCartItems,
   updateCartItem,
-  removeCartItem,
+  removeFromCart,
 };

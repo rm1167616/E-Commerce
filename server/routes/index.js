@@ -10,6 +10,8 @@ const reviewRoutes = require("./reviewRoutes");
 const orderRoutes = require("./orderRoutes");
 const adminOrderRoutes = require("./adminOrderRoutes");
 const cartRoutes = require("./cartRoutes");
+const pagesRoutes = require("./pagesRoutes");
+const pageSettingsRoutes = require("./pageSettingsRoutes");
 
 // Use route modules
 router.use("/auth", authRoutes);
@@ -20,6 +22,8 @@ router.use("/reviews", reviewRoutes);
 router.use("/orders", orderRoutes);
 router.use("/admin/orders", adminOrderRoutes);
 router.use("/cart", cartRoutes);
+router.use("/pages", pagesRoutes);
+router.use("/api/page-settings", pageSettingsRoutes);
 
 // Add a test route
 router.get("/test", (req, res) => {

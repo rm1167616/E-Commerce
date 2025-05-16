@@ -453,52 +453,63 @@ const getProductById = async (req, res) => {
   }
 };
 
+// Helper function to get store from auth user
+const getStoreFromAuth = async (user_id) => {
+  const store = await Store.findOne({
+    where: { created_by: user_id }
+  });
+
+  if (!store) {
+    throw new Error("Store not found for this user");
+  }
+
+  return store;
+};
+
 /**
  * @desc    Create a new product
- * @route   POST /api/admin/products
- * @access  Admin
+ * @route   POST /api/products
+ * @access  Private (Admin)
  */
 const createProduct = async (req, res) => {
   const transaction = await sequelize.transaction();
 
   try {
+    // Get store from auth user
+    const store = await getStoreFromAuth(req.user.user_id);
+
     const {
-      store_id,
       name,
       main_description,
       price,
       stock_quantity = 0,
       category_id,
-      images = [],
-      attributes = [],
+      images,
+      attributes,
     } = req.body;
-
-    // Check if store exists
-    const store = await Store.findByPk(store_id);
-    if (!store) {
-      await transaction.rollback();
-      return res.status(404).json({
-        success: false,
-        message: "Store not found",
-      });
-    }
 
     // Check if category exists if provided
     if (category_id) {
-      const category = await Category.findByPk(category_id);
+      const category = await Category.findOne({
+        where: {
+          category_id,
+          store_id: store.store_id,
+        },
+      });
+
       if (!category) {
         await transaction.rollback();
         return res.status(404).json({
           success: false,
-          message: "Category not found",
+          message: "Category not found in your store",
         });
       }
     }
 
-    // Create the product
+    // Create product
     const product = await Product.create(
       {
-        store_id,
+        store_id: store.store_id,
         name,
         main_description,
         price,
@@ -509,82 +520,69 @@ const createProduct = async (req, res) => {
       { transaction }
     );
 
-    // Add product images if provided
+    // Handle images if provided
     if (images && images.length > 0) {
-      const productImages = images.map((image, index) => ({
-        product_id: product.product_id,
-        img_path: image.img_path,
-        is_main: image.is_main || index === 0, // First image is main by default if not specified
-        status: "active",
-      }));
-
-      await ProductImage.bulkCreate(productImages, { transaction });
+      await ProductImage.bulkCreate(
+        images.map((img) => ({
+          product_id: product.product_id,
+          img_path: img,
+        })),
+        { transaction }
+      );
     }
 
-    // Add product attributes if provided
+    // Handle attributes if provided
     if (attributes && attributes.length > 0) {
-      const attributeValues = [];
-
       for (const attr of attributes) {
-        const { attribute_id, option_ids } = attr;
-
-        // Validate attribute exists
-        const attributeExists = await ProductAttribute.findByPk(attribute_id);
-        if (!attributeExists) {
-          await transaction.rollback();
-          return res.status(404).json({
-            success: false,
-            message: `Attribute with ID ${attribute_id} not found`,
-          });
-        }
-
-        // Add each option for this attribute
-        if (option_ids && option_ids.length > 0) {
-          for (const option_id of option_ids) {
-            // Validate option exists
-            const optionExists = await AttributeOption.findByPk(option_id);
-            if (!optionExists) {
-              await transaction.rollback();
-              return res.status(404).json({
-                success: false,
-                message: `Option with ID ${option_id} not found`,
-              });
-            }
-
-            attributeValues.push({
-              product_id: product.product_id,
-              attribute_id,
-              option_id,
-            });
-          }
-        }
-      }
-
-      if (attributeValues.length > 0) {
-        await ProductAttributeValue.bulkCreate(attributeValues, {
+        // Create or find attribute
+        const [productAttribute] = await ProductAttribute.findOrCreate({
+          where: {
+            store_id: store.store_id,
+            name: attr.name,
+          },
+          defaults: {
+            store_id: store.store_id,
+            name: attr.name,
+          },
           transaction,
         });
+
+        // Create attribute values
+        for (const value of attr.values) {
+          // Create or find option
+          const [option] = await AttributeOption.findOrCreate({
+            where: {
+              attribute_id: productAttribute.attribute_id,
+              value: value,
+            },
+            defaults: {
+              attribute_id: productAttribute.attribute_id,
+              value: value,
+            },
+            transaction,
+          });
+
+          // Create attribute value for product
+          await ProductAttributeValue.create(
+            {
+              product_id: product.product_id,
+              attribute_id: productAttribute.attribute_id,
+              option_id: option.option_id,
+            },
+            { transaction }
+          );
+        }
       }
     }
 
     await transaction.commit();
 
-    // Fetch the created product with all its related data
+    // Fetch the created product with all its relations
     const createdProduct = await Product.findByPk(product.product_id, {
       include: [
         {
-          model: Category,
-          attributes: ["category_id", "name"],
-        },
-        {
-          model: Store,
-          attributes: ["store_id", "name"],
-        },
-        {
           model: ProductImage,
-          attributes: ["id", "img_path", "is_main"],
-          where: { status: "active" },
-          required: false,
+          attributes: ["img_id", "img_path"],
         },
         {
           model: ProductAttributeValue,
@@ -598,7 +596,10 @@ const createProduct = async (req, res) => {
               attributes: ["option_id", "value"],
             },
           ],
-          required: false,
+        },
+        {
+          model: Category,
+          attributes: ["category_id", "name"],
         },
       ],
     });
@@ -630,7 +631,6 @@ const updateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
     const {
-      store_id,
       name,
       main_description,
       price,
@@ -640,44 +640,46 @@ const updateProduct = async (req, res) => {
       attributes,
     } = req.body;
 
-    // Check if product exists
-    const product = await Product.findByPk(productId);
+    // Get store from auth user
+    const store = await getStoreFromAuth(req.user.user_id);
+
+    // Check if product exists and belongs to the store
+    const product = await Product.findOne({
+      where: {
+        product_id: productId,
+        store_id: store.store_id,
+      },
+    });
+
     if (!product) {
       await transaction.rollback();
       return res.status(404).json({
         success: false,
-        message: "Product not found",
+        message: "Product not found in your store",
       });
-    }
-
-    // Check if store exists if provided
-    if (store_id) {
-      const store = await Store.findByPk(store_id);
-      if (!store) {
-        await transaction.rollback();
-        return res.status(404).json({
-          success: false,
-          message: "Store not found",
-        });
-      }
     }
 
     // Check if category exists if provided
     if (category_id) {
-      const category = await Category.findByPk(category_id);
+      const category = await Category.findOne({
+        where: {
+          category_id,
+          store_id: store.store_id,
+        },
+      });
+
       if (!category) {
         await transaction.rollback();
         return res.status(404).json({
           success: false,
-          message: "Category not found",
+          message: "Category not found in your store",
         });
       }
     }
 
     // Update product
-    await Product.update(
+    await product.update(
       {
-        store_id: store_id || product.store_id,
         name: name || product.name,
         main_description:
           main_description !== undefined
@@ -691,101 +693,90 @@ const updateProduct = async (req, res) => {
         category_id:
           category_id !== undefined ? category_id : product.category_id,
       },
-      {
-        where: { product_id: productId },
-        transaction,
-      }
+      { transaction }
     );
 
-    // Update product images if provided
-    if (images && images.length > 0) {
+    // Handle images if provided
+    if (images) {
       // Delete existing images
       await ProductImage.destroy({
         where: { product_id: productId },
         transaction,
       });
 
-      // Add new images
-      const productImages = images.map((image, index) => ({
-        product_id: productId,
-        img_path: image.img_path,
-        is_main: image.is_main || index === 0, // First image is main by default if not specified
-        status: "active",
-      }));
-
-      await ProductImage.bulkCreate(productImages, { transaction });
+      // Create new images
+      if (images.length > 0) {
+        await ProductImage.bulkCreate(
+          images.map((img) => ({
+            product_id: productId,
+            img_path: img,
+          })),
+          { transaction }
+        );
+      }
     }
 
-    // Update product attributes if provided
-    if (attributes && attributes.length > 0) {
+    // Handle attributes if provided
+    if (attributes) {
       // Delete existing attribute values
       await ProductAttributeValue.destroy({
         where: { product_id: productId },
         transaction,
       });
 
-      const attributeValues = [];
-
-      for (const attr of attributes) {
-        const { attribute_id, option_ids } = attr;
-
-        // Validate attribute exists
-        const attributeExists = await ProductAttribute.findByPk(attribute_id);
-        if (!attributeExists) {
-          await transaction.rollback();
-          return res.status(404).json({
-            success: false,
-            message: `Attribute with ID ${attribute_id} not found`,
+      // Create new attributes
+      if (attributes.length > 0) {
+        for (const attr of attributes) {
+          // Create or find attribute
+          const [productAttribute] = await ProductAttribute.findOrCreate({
+            where: {
+              store_id: store.store_id,
+              name: attr.name,
+            },
+            defaults: {
+              store_id: store.store_id,
+              name: attr.name,
+            },
+            transaction,
           });
-        }
 
-        // Add each option for this attribute
-        if (option_ids && option_ids.length > 0) {
-          for (const option_id of option_ids) {
-            // Validate option exists
-            const optionExists = await AttributeOption.findByPk(option_id);
-            if (!optionExists) {
-              await transaction.rollback();
-              return res.status(404).json({
-                success: false,
-                message: `Option with ID ${option_id} not found`,
-              });
-            }
-
-            attributeValues.push({
-              product_id: productId,
-              attribute_id,
-              option_id,
+          // Create attribute values
+          for (const value of attr.values) {
+            // Create or find option
+            const [option] = await AttributeOption.findOrCreate({
+              where: {
+                attribute_id: productAttribute.attribute_id,
+                value: value,
+              },
+              defaults: {
+                attribute_id: productAttribute.attribute_id,
+                value: value,
+              },
+              transaction,
             });
+
+            // Create attribute value for product
+            await ProductAttributeValue.create(
+              {
+                product_id: productId,
+                attribute_id: productAttribute.attribute_id,
+                option_id: option.option_id,
+              },
+              { transaction }
+            );
           }
         }
-      }
-
-      if (attributeValues.length > 0) {
-        await ProductAttributeValue.bulkCreate(attributeValues, {
-          transaction,
-        });
       }
     }
 
     await transaction.commit();
 
-    // Fetch the updated product with all its related data
+    // Fetch the updated product with all its relations
     const updatedProduct = await Product.findByPk(productId, {
       include: [
         {
-          model: Category,
-          attributes: ["category_id", "name"],
-        },
-        {
-          model: Store,
-          attributes: ["store_id", "name"],
-        },
-        {
           model: ProductImage,
-          attributes: ["id", "img_path", "is_main"],
-          where: { status: "active" },
-          required: false,
+          attributes: ["img_id", "img_path"],
         },
         {
           model: ProductAttributeValue,
@@ -799,7 +790,10 @@ const updateProduct = async (req, res) => {
               attributes: ["option_id", "value"],
             },
           ],
-          required: false,
+        },
+        {
+          model: Category,
+          attributes: ["category_id", "name"],
         },
       ],
     });
@@ -1070,6 +1064,140 @@ const searchProducts = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Get user's store products
+ * @route   GET /api/products/store
+ * @access  Private
+ */
+const getUserStoreProducts = async (req, res) => {
+  try {
+    // Get store from auth user
+    const store = await getStoreFromAuth(req.user.user_id);
+
+    const {
+      search,
+      min_price,
+      max_price,
+      min_stock,
+      max_stock,
+      sort_by = "name",
+      sort_order = "ASC",
+      page = 1,
+      limit = 10,
+      category_id,
+    } = req.query;
+
+    // Validate sort parameters
+    const validSortFields = [
+      "name",
+      "price",
+      "stock_quantity",
+      "seen_number",
+      "created_at",
+    ];
+    const validSortOrders = ["ASC", "DESC"];
+
+    const sortField = validSortFields.includes(sort_by) ? sort_by : "name";
+    const sortDirection = validSortOrders.includes(sort_order.toUpperCase())
+      ? sort_order.toUpperCase()
+      : "ASC";
+
+    // Build where conditions
+    const whereConditions = {
+      store_id: store.store_id,
+    };
+
+    // Search by name
+    if (search) {
+      whereConditions.name = { [Op.like]: `%${search}%` };
+    }
+
+    // Filter by category
+    if (category_id) {
+      whereConditions.category_id = category_id;
+    }
+
+    // Filter by price range
+    if (min_price !== undefined && !isNaN(min_price)) {
+      whereConditions.price = {
+        ...whereConditions.price,
+        [Op.gte]: parseFloat(min_price),
+      };
+    }
+
+    if (max_price !== undefined && !isNaN(max_price)) {
+      whereConditions.price = {
+        ...whereConditions.price,
+        [Op.lte]: parseFloat(max_price),
+      };
+    }
+
+    // Filter by stock range
+    if (min_stock !== undefined && !isNaN(min_stock)) {
+      whereConditions.stock_quantity = {
+        ...whereConditions.stock_quantity,
+        [Op.gte]: parseInt(min_stock),
+      };
+    }
+
+    if (max_stock !== undefined && !isNaN(max_stock)) {
+      whereConditions.stock_quantity = {
+        ...whereConditions.stock_quantity,
+        [Op.lte]: parseInt(max_stock),
+      };
+    }
+
+    // Pagination
+    const pageNumber = parseInt(page, 10) || 1;
+    const limitNumber = parseInt(limit, 10) || 10;
+    const offset = (pageNumber - 1) * limitNumber;
+
+    // Get total count for pagination
+    const totalCount = await Product.count({ where: whereConditions });
+
+    // Get products
+    const products = await Product.findAll({
+      where: whereConditions,
+      order: [[sortField, sortDirection]],
+      limit: limitNumber,
+      offset,
+      include: [
+        {
+          model: ProductImage,
+          attributes: ["img_id", "img_path"],
+        },
+        {
+          model: Category,
+          attributes: ["category_id", "name"],
+        },
+      ],
+    });
+
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(totalCount / limitNumber);
+    const hasNextPage = pageNumber < totalPages;
+    const hasPrevPage = pageNumber > 1;
+
+    res.status(200).json({
+      success: true,
+      count: products.length,
+      total_count: totalCount,
+      total_pages: totalPages,
+      current_page: pageNumber,
+      has_next_page: hasNextPage,
+      has_prev_page: hasPrevPage,
+      data: products,
+    });
+  } catch (error) {
+    console.error("Error getting store products:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to get store products",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
 module.exports = {
   getAllProducts,
   getProductsByCategory,
@@ -1079,4 +1207,5 @@ module.exports = {
   deleteProduct,
   getFeaturedProducts,
   searchProducts,
+  getUserStoreProducts,
 };
