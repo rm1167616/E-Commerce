@@ -8,8 +8,10 @@ const { Op } = require("sequelize");
  */
 const getAllCategories = async (req, res) => {
   try {
+    // Get store from auth user
+    const store = await getStoreFromAuth(req.user.user_id);
+
     const {
-      store_id,
       search,
       sort_by = "name",
       sort_order = "ASC",
@@ -36,12 +38,9 @@ const getAllCategories = async (req, res) => {
       : "ASC";
 
     // Build where conditions
-    const whereConditions = {};
-
-    // Filter by store_id
-    if (store_id) {
-      whereConditions.store_id = store_id;
-    }
+    const whereConditions = {
+      store_id: store.store_id // Only get categories for this store
+    };
 
     // Search by name
     if (search) {
@@ -160,45 +159,60 @@ const getCategoryById = async (req, res) => {
   }
 };
 
+// Helper function to get store from auth user
+const getStoreFromAuth = async (user_id) => {
+  const store = await Store.findOne({
+    where: { created_by: user_id }
+  });
+
+  if (!store) {
+    throw new Error("Store not found for this user");
+  }
+
+  return store;
+};
+
 /**
  * @desc    Create a new category
- * @route   POST /api/admin/categories
- * @access  Admin
+ * @route   POST /api/categories
+ * @access  Private (Admin)
  */
 const createCategory = async (req, res) => {
   try {
-    const { store_id, name, description, img_path } = req.body;
+    // Get store from auth user
+    const store = await getStoreFromAuth(req.user.user_id);
 
-    // Validate required fields
-    if (!store_id || !name) {
-      return res.status(400).json({
-        success: false,
-        message: "Please provide store_id and name",
+    const { name, description, parent_id } = req.body;
+
+    // Check if parent category exists and belongs to the store
+    if (parent_id) {
+      const parentCategory = await Category.findOne({
+        where: {
+          category_id: parent_id,
+          store_id: store.store_id,
+        },
       });
+
+      if (!parentCategory) {
+        return res.status(404).json({
+          success: false,
+          message: "Parent category not found in your store",
+        });
+      }
     }
 
-    // Check if store exists
-    const storeExists = await Store.findByPk(store_id);
-    if (!storeExists) {
-      return res.status(404).json({
-        success: false,
-        message: "Store not found",
-      });
-    }
-
-    // Create the category
-    const newCategory = await Category.create({
-      store_id,
+    const category = await Category.create({
+      store_id: store.store_id,
       name,
       description,
-      img_path,
-      seen_number: 0,
+      parent_id,
+      created_by: req.user.user_id,
     });
 
     res.status(201).json({
       success: true,
       message: "Category created successfully",
-      data: newCategory,
+      data: category,
     });
   } catch (error) {
     console.error("Error creating category:", error);
@@ -212,42 +226,61 @@ const createCategory = async (req, res) => {
 
 /**
  * @desc    Update a category
- * @route   PUT /api/admin/categories/:id
- * @access  Admin
+ * @route   PUT /api/categories/:id
+ * @access  Private (Admin)
  */
 const updateCategory = async (req, res) => {
   try {
     const categoryId = req.params.id;
-    const { store_id, name, description, img_path } = req.body;
+    const { name, description, parent_id } = req.body;
 
-    // Find the category
-    const category = await Category.findByPk(categoryId);
+    // Get store from auth user
+    const store = await getStoreFromAuth(req.user.user_id);
+
+    // Check if category exists and belongs to the store
+    const category = await Category.findOne({
+      where: {
+        category_id: categoryId,
+        store_id: store.store_id,
+      },
+    });
 
     if (!category) {
       return res.status(404).json({
         success: false,
-        message: "Category not found",
+        message: "Category not found in your store",
       });
     }
 
-    // Check if store exists if store_id is provided
-    if (store_id) {
-      const storeExists = await Store.findByPk(store_id);
-      if (!storeExists) {
+    // Check if parent category exists and belongs to the store
+    if (parent_id) {
+      const parentCategory = await Category.findOne({
+        where: {
+          category_id: parent_id,
+          store_id: store.store_id,
+        },
+      });
+
+      if (!parentCategory) {
         return res.status(404).json({
           success: false,
-          message: "Store not found",
+          message: "Parent category not found in your store",
+        });
+      }
+
+      // Prevent circular reference
+      if (parent_id === categoryId) {
+        return res.status(400).json({
+          success: false,
+          message: "A category cannot be its own parent",
         });
       }
     }
 
-    // Update the category
     await category.update({
-      store_id: store_id || category.store_id,
       name: name || category.name,
-      description:
-        description !== undefined ? description : category.description,
-      img_path: img_path !== undefined ? img_path : category.img_path,
+      description: description !== undefined ? description : category.description,
+      parent_id: parent_id !== undefined ? parent_id : category.parent_id,
     });
 
     res.status(200).json({
@@ -301,10 +334,86 @@ const deleteCategory = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Get store categories
+ * @route   GET /api/categories/store
+ * @access  Private
+ */
+const getStoreCategories = async (req, res) => {
+  try {
+    // Get store from auth user
+    const store = await getStoreFromAuth(req.user.user_id);
+
+    const { search, parent_id, page = 1, limit = 10 } = req.query;
+
+    // Build where conditions
+    const whereConditions = {
+      store_id: store.store_id,
+    };
+
+    // Search by name
+    if (search) {
+      whereConditions.name = { [Op.like]: `%${search}%` };
+    }
+
+    // Filter by parent
+    if (parent_id !== undefined) {
+      whereConditions.parent_id = parent_id;
+    }
+
+    // Pagination
+    const pageNumber = parseInt(page, 10) || 1;
+    const limitNumber = parseInt(limit, 10) || 10;
+    const offset = (pageNumber - 1) * limitNumber;
+
+    // Get total count for pagination
+    const totalCount = await Category.count({ where: whereConditions });
+
+    // Get categories
+    const categories = await Category.findAll({
+      where: whereConditions,
+      order: [["name", "ASC"]],
+      limit: limitNumber,
+      offset,
+      include: [
+        {
+          model: Category,
+          as: "parent",
+          attributes: ["category_id", "name"],
+        },
+      ],
+    });
+
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(totalCount / limitNumber);
+    const hasNextPage = pageNumber < totalPages;
+    const hasPrevPage = pageNumber > 1;
+
+    res.status(200).json({
+      success: true,
+      count: categories.length,
+      total_count: totalCount,
+      total_pages: totalPages,
+      current_page: pageNumber,
+      has_next_page: hasNextPage,
+      has_prev_page: hasPrevPage,
+      data: categories,
+    });
+  } catch (error) {
+    console.error("Error getting store categories:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to get store categories",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
 module.exports = {
   getAllCategories,
   getCategoryById,
   createCategory,
   updateCategory,
   deleteCategory,
+  getStoreCategories,
 };

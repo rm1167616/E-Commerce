@@ -72,8 +72,59 @@ const loginValidationRules = [
   body("password").notEmpty().withMessage("Password is required"),
 ];
 
+/**
+ * Validation rules for page settings
+ */
+const pageSettingsValidationRules = [
+  body("backgroundColor")
+    .optional()
+    .matches(/^#[0-9A-Fa-f]{6}$/)
+    .withMessage("Background color must be a valid hex color code"),
+  body("primaryTextColor")
+    .optional()
+    .matches(/^#[0-9A-Fa-f]{6}$/)
+    .withMessage("Primary text color must be a valid hex color code"),
+  body("secondaryTextColor")
+    .optional()
+    .matches(/^#[0-9A-Fa-f]{6}$/)
+    .withMessage("Secondary text color must be a valid hex color code"),
+  body("linkColor")
+    .optional()
+    .matches(/^#[0-9A-Fa-f]{6}$/)
+    .withMessage("Link color must be a valid hex color code"),
+  body("linkHoverColor")
+    .optional()
+    .matches(/^#[0-9A-Fa-f]{6}$/)
+    .withMessage("Link hover color must be a valid hex color code"),
+  body("headingFont")
+    .optional()
+    .notEmpty()
+    .withMessage("Heading font cannot be empty"),
+  body("headingSize")
+    .optional()
+    .isInt({ min: 8, max: 72 })
+    .withMessage("Heading size must be between 8 and 72"),
+  body("pagePadding")
+    .optional()
+    .matches(/^[0-9]+(px|rem|em|%)$/)
+    .withMessage("Page padding must be a valid CSS size value"),
+  body("paragraphFont")
+    .optional()
+    .notEmpty()
+    .withMessage("Paragraph font cannot be empty"),
+  body("paragraphSize")
+    .optional()
+    .isInt({ min: 8, max: 72 })
+    .withMessage("Paragraph size must be between 8 and 72"),
+  body("contentMaxWidth")
+    .optional()
+    .matches(/^[0-9]+(px|rem|em|%)$/)
+    .withMessage("Content max width must be a valid CSS size value"),
+];
+
 module.exports = {
   validate,
   registerValidationRules,
   loginValidationRules,
+  pageSettingsValidationRules,
 };

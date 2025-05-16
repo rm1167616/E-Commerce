@@ -214,3 +214,36 @@ CREATE TABLE Reviews (
     FOREIGN KEY (user_id) REFERENCES Users(user_id),
     UNIQUE KEY unique_user_product_review (user_id, product_id)
 );
+
+CREATE TABLE About (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    store_id INT NOT NULL
+);
+
+CREATE TABLE AboutSection (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    about_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    img TEXT,
+    FOREIGN KEY (about_id) REFERENCES About(id) ON DELETE CASCADE
+);
+
+-- PAGE SETTINGS (singleton)
+CREATE TABLE PageSettings (
+    id INT PRIMARY KEY DEFAULT 1,
+    store_id INT NOT NULL,
+    backgroundColor VARCHAR(7) NOT NULL DEFAULT '#FFFFFF',
+    primaryTextColor VARCHAR(7) NOT NULL DEFAULT '#000000',
+    secondaryTextColor VARCHAR(7) NOT NULL DEFAULT '#666666',
+    linkColor VARCHAR(7) NOT NULL DEFAULT '#0066CC',
+    linkHoverColor VARCHAR(7) NOT NULL DEFAULT '#003366',
+    headingFont VARCHAR(100) NOT NULL DEFAULT 'Arial',
+    headingSize INT NOT NULL DEFAULT 24 CHECK (headingSize BETWEEN 8 AND 72),
+    pagePadding VARCHAR(20) NOT NULL DEFAULT '20px',
+    paragraphFont VARCHAR(100) NOT NULL DEFAULT 'Arial',
+    paragraphSize INT NOT NULL DEFAULT 16 CHECK (paragraphSize BETWEEN 8 AND 72),
+    contentMaxWidth VARCHAR(20) NOT NULL DEFAULT '1200px',
+    FOREIGN KEY (store_id) REFERENCES Stores(store_id) ON DELETE CASCADE,
+    CHECK (id = 1)
+);

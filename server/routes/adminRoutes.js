@@ -3,9 +3,33 @@ const router = express.Router();
 const { body } = require("express-validator");
 const categoryController = require("../controllers/categoryController");
 const { isAuthenticated, isAdmin } = require("../middlewares/authMiddleware");
-
-// Import validation middleware
 const { validate } = require("../middlewares/validationMiddleware");
+const multer = require("multer");
+
+// Configure multer for category image uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/categories");
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, `${uniqueSuffix}-${file.originalname}`);
+  },
+});
+
+const upload = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Not an image! Please upload an image."), false);
+    }
+  },
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+});
 
 /**
  * @swagger
@@ -18,16 +42,11 @@ const { validate } = require("../middlewares/validationMiddleware");
  * @swagger
  * /api/admin/categories:
  *   get:
- *     summary: Get all categories
+ *     summary: Get all categories for the authenticated user's store
  *     tags: [Admin Categories]
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: query
- *         name: store_id
- *         schema:
- *           type: integer
- *         description: Filter by store ID
  *       - in: query
  *         name: search
  *         schema:
@@ -35,7 +54,7 @@ const { validate } = require("../middlewares/validationMiddleware");
  *         description: Search by category name
  *     responses:
  *       200:
- *         description: List of categories
+ *         description: List of categories for the authenticated user's store
  *       401:
  *         description: Not authenticated
  *       403:
@@ -54,7 +73,7 @@ router.get(
  * @swagger
  * /api/admin/categories/{id}:
  *   get:
- *     summary: Get a category by ID
+ *     summary: Get a category by ID for the authenticated user's store
  *     tags: [Admin Categories]
  *     security:
  *       - bearerAuth: []
@@ -88,7 +107,7 @@ router.get(
  * @swagger
  * /api/admin/categories:
  *   post:
- *     summary: Create a new category
+ *     summary: Create a new category for the authenticated user's store
  *     tags: [Admin Categories]
  *     security:
  *       - bearerAuth: []
@@ -99,11 +118,8 @@ router.get(
  *           schema:
  *             type: object
  *             required:
- *               - store_id
  *               - name
  *             properties:
- *               store_id:
- *                 type: integer
  *               parent_category_id:
  *                 type: integer
  *               name:
@@ -128,15 +144,14 @@ router.post(
   "/categories",
   isAuthenticated,
   isAdmin,
+  upload.single("image"),
   [
-    body("store_id").isInt().withMessage("Store ID must be an integer"),
     body("name")
       .notEmpty()
       .withMessage("Name is required")
       .isLength({ max: 100 })
       .withMessage("Name cannot exceed 100 characters"),
     body("description").optional(),
-    body("img_path").optional(),
   ],
   validate,
   categoryController.createCategory
@@ -146,7 +161,7 @@ router.post(
  * @swagger
  * /api/admin/categories/{id}:
  *   put:
- *     summary: Update a category
+ *     summary: Update a category for the authenticated user's store
  *     tags: [Admin Categories]
  *     security:
  *       - bearerAuth: []
@@ -164,8 +179,6 @@ router.post(
  *           schema:
  *             type: object
  *             properties:
- *               store_id:
- *                 type: integer
  *               name:
  *                 type: string
  *               description:
@@ -190,17 +203,13 @@ router.put(
   "/categories/:id",
   isAuthenticated,
   isAdmin,
+  upload.single("image"),
   [
-    body("store_id")
-      .optional()
-      .isInt()
-      .withMessage("Store ID must be an integer"),
     body("name")
       .optional()
       .isLength({ max: 100 })
       .withMessage("Name cannot exceed 100 characters"),
     body("description").optional(),
-    body("img_path").optional(),
   ],
   validate,
   categoryController.updateCategory

@@ -18,14 +18,11 @@ const { validate } = require("../middlewares/validationMiddleware");
  * @swagger
  * /api/offers/active:
  *   get:
- *     summary: Get active offers
+ *     summary: Get active offers for the authenticated user's store
  *     tags: [Offers]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
- *       - in: query
- *         name: store_id
- *         schema:
- *           type: integer
- *         description: Filter by store ID
  *       - in: query
  *         name: limit
  *         schema:
@@ -34,7 +31,7 @@ const { validate } = require("../middlewares/validationMiddleware");
  *         description: Number of offers to return
  *     responses:
  *       200:
- *         description: List of active offers
+ *         description: List of active offers for the authenticated user's store
  *         content:
  *           application/json:
  *             schema:
@@ -94,6 +91,8 @@ const { validate } = require("../middlewares/validationMiddleware");
  *                           name:
  *                             type: string
  *                             example: "Tech Store"
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  *         content:
@@ -368,16 +367,11 @@ router.get("/:id", offerController.getOfferById);
  * @swagger
  * /api/admin/offers:
  *   get:
- *     summary: Get all offers (admin access)
+ *     summary: Get all offers for the authenticated user's store (admin access)
  *     tags: [Offers]
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: query
- *         name: store_id
- *         schema:
- *           type: integer
- *         description: Filter by store ID
  *       - in: query
  *         name: search
  *         schema:
@@ -424,7 +418,7 @@ router.get("/:id", offerController.getOfferById);
  *         description: Number of items per page
  *     responses:
  *       200:
- *         description: List of offers
+ *         description: List of offers for the authenticated user's store
  *       401:
  *         description: Not authenticated
  *       403:
@@ -438,7 +432,7 @@ router.get("/offers", isAuthenticated, isAdmin, offerController.getAllOffers);
  * @swagger
  * /api/admin/offers:
  *   post:
- *     summary: Create a new offer
+ *     summary: Create a new offer for the authenticated user's store
  *     tags: [Offers]
  *     security:
  *       - bearerAuth: []
@@ -449,12 +443,9 @@ router.get("/offers", isAuthenticated, isAdmin, offerController.getAllOffers);
  *           schema:
  *             type: object
  *             required:
- *               - store_id
  *               - name
  *               - discount_percentage
  *             properties:
- *               store_id:
- *                 type: integer
  *               name:
  *                 type: string
  *               description:
@@ -482,8 +473,6 @@ router.get("/offers", isAuthenticated, isAdmin, offerController.getAllOffers);
  *         description: Not authenticated
  *       403:
  *         description: Not authorized as admin
- *       404:
- *         description: Store not found
  *       500:
  *         description: Server error
  */
@@ -492,7 +481,6 @@ router.post(
   isAuthenticated,
   isAdmin,
   [
-    body("store_id").isInt().withMessage("Store ID must be an integer"),
     body("name").notEmpty().withMessage("Name is required"),
     body("discount_percentage")
       .isFloat({ min: 0, max: 100 })
@@ -573,22 +561,15 @@ router.put(
   isAuthenticated,
   isAdmin,
   [
-    body("store_id")
-      .optional()
-      .isInt()
-      .withMessage("Store ID must be an integer"),
-    body("name").optional().notEmpty().withMessage("Name cannot be empty"),
+    body("name").notEmpty().withMessage("Name cannot be empty"),
     body("discount_percentage")
-      .optional()
       .isFloat({ min: 0, max: 100 })
       .withMessage("Discount percentage must be between 0 and 100"),
     body("description").optional(),
     body("start_date")
-      .optional()
       .isISO8601()
       .withMessage("Start date must be a valid date"),
     body("end_date")
-      .optional()
       .isISO8601()
       .withMessage("End date must be a valid date"),
     body("offer_img").optional(),

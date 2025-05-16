@@ -9,6 +9,19 @@ const {
 } = require("../models");
 const { Op } = require("sequelize");
 
+// Helper function to get store from auth user
+const getStoreFromAuth = async (user_id) => {
+  const store = await Store.findOne({
+    where: { created_by: user_id }
+  });
+
+  if (!store) {
+    throw new Error("Store not found for this user");
+  }
+
+  return store;
+};
+
 /**
  * @desc    Create a new order from cart items
  * @route   POST /api/orders
@@ -27,14 +40,19 @@ const createOrder = async (req, res) => {
 
     const user_id = req.user.id;
 
-    // Check if store exists
-    const store = await Store.findByPk(store_id);
-    if (!store) {
-      await transaction.rollback();
-      return res.status(404).json({
-        success: false,
-        message: "Store not found",
-      });
+    // Get store from auth user if not provided in body
+    let store;
+    if (store_id) {
+      store = await Store.findByPk(store_id);
+      if (!store) {
+        await transaction.rollback();
+        return res.status(404).json({
+          success: false,
+          message: "Store not found",
+        });
+      }
+    } else {
+      store = await getStoreFromAuth(user_id);
     }
 
     // Get cart items for this user and store
@@ -170,42 +188,22 @@ const createOrder = async (req, res) => {
  */
 const getUserOrders = async (req, res) => {
   try {
-    const user_id = req.user.id;
-    const {
-      status,
-      store_id,
-      sort_by = "created_at",
-      sort_order = "DESC",
-      page = 1,
-      limit = 10,
-    } = req.query;
+    const { status, page = 1, limit = 10 } = req.query;
 
-    // Validate sort parameters
-    const validSortFields = ["order_id", "total_amount", "created_at"];
-    const validSortOrders = ["ASC", "DESC"];
+    // Build where conditions
+    const whereConditions = {
+      user_id: req.user.user_id,
+    };
 
-    const sortField = validSortFields.includes(sort_by)
-      ? sort_by
-      : "created_at";
-    const sortDirection = validSortOrders.includes(sort_order.toUpperCase())
-      ? sort_order.toUpperCase()
-      : "DESC";
+    // Filter by status
+    if (status) {
+      whereConditions.status = status;
+    }
 
     // Pagination
     const pageNumber = parseInt(page, 10) || 1;
     const limitNumber = parseInt(limit, 10) || 10;
     const offset = (pageNumber - 1) * limitNumber;
-
-    // Build where conditions
-    const whereConditions = { user_id };
-
-    if (status) {
-      whereConditions.status = status;
-    }
-
-    if (store_id) {
-      whereConditions.store_id = store_id;
-    }
 
     // Get total count for pagination
     const totalCount = await Order.count({ where: whereConditions });
@@ -213,22 +211,22 @@ const getUserOrders = async (req, res) => {
     // Get orders
     const orders = await Order.findAll({
       where: whereConditions,
-      order: [[sortField, sortDirection]],
+      order: [["created_at", "DESC"]],
       limit: limitNumber,
       offset,
       include: [
-        {
-          model: Store,
-          attributes: ["store_id", "name"],
-        },
         {
           model: OrderItem,
           include: [
             {
               model: Product,
-              attributes: ["product_id", "name", "price"],
+              attributes: ["product_id", "name", "img_path"],
             },
           ],
+        },
+        {
+          model: Store,
+          attributes: ["store_id", "name"],
         },
       ],
     });
@@ -241,20 +239,18 @@ const getUserOrders = async (req, res) => {
     res.status(200).json({
       success: true,
       count: orders.length,
+      total_count: totalCount,
+      total_pages: totalPages,
+      current_page: pageNumber,
+      has_next_page: hasNextPage,
+      has_prev_page: hasPrevPage,
       data: orders,
-      pagination: {
-        total_items: totalCount,
-        total_pages: totalPages,
-        current_page: pageNumber,
-        items_per_page: limitNumber,
-        has_next_page: hasNextPage,
-        has_prev_page: hasPrevPage,
-      },
     });
   } catch (error) {
+    console.error("Error getting user orders:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to get orders",
+      message: "Failed to get user orders",
       error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
@@ -415,9 +411,10 @@ const cancelOrder = async (req, res) => {
  */
 const getAllOrders = async (req, res) => {
   try {
+    // Get store from auth user
+    const store = await getStoreFromAuth(req.user.user_id);
+
     const {
-      user_id,
-      store_id,
       status,
       min_amount,
       max_amount,
@@ -451,15 +448,9 @@ const getAllOrders = async (req, res) => {
     const offset = (pageNumber - 1) * limitNumber;
 
     // Build where conditions
-    const whereConditions = {};
-
-    if (user_id) {
-      whereConditions.user_id = user_id;
-    }
-
-    if (store_id) {
-      whereConditions.store_id = store_id;
-    }
+    const whereConditions = {
+      store_id: store.store_id // Only get orders for this store
+    };
 
     if (status) {
       whereConditions.status = status;
@@ -626,6 +617,84 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Get store orders
+ * @route   GET /api/orders/store
+ * @access  Private (Admin)
+ */
+const getStoreOrders = async (req, res) => {
+  try {
+    const { status, page = 1, limit = 10 } = req.query;
+
+    // Get store from auth user
+    const store = await getStoreFromAuth(req.user.user_id);
+
+    // Build where conditions
+    const whereConditions = {
+      store_id: store.store_id,
+    };
+
+    // Filter by status
+    if (status) {
+      whereConditions.status = status;
+    }
+
+    // Pagination
+    const pageNumber = parseInt(page, 10) || 1;
+    const limitNumber = parseInt(limit, 10) || 10;
+    const offset = (pageNumber - 1) * limitNumber;
+
+    // Get total count for pagination
+    const totalCount = await Order.count({ where: whereConditions });
+
+    // Get orders
+    const orders = await Order.findAll({
+      where: whereConditions,
+      order: [["created_at", "DESC"]],
+      limit: limitNumber,
+      offset,
+      include: [
+        {
+          model: OrderItem,
+          include: [
+            {
+              model: Product,
+              attributes: ["product_id", "name", "img_path"],
+            },
+          ],
+        },
+        {
+          model: User,
+          attributes: ["user_id", "name", "email"],
+        },
+      ],
+    });
+
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(totalCount / limitNumber);
+    const hasNextPage = pageNumber < totalPages;
+    const hasPrevPage = pageNumber > 1;
+
+    res.status(200).json({
+      success: true,
+      count: orders.length,
+      total_count: totalCount,
+      total_pages: totalPages,
+      current_page: pageNumber,
+      has_next_page: hasNextPage,
+      has_prev_page: hasPrevPage,
+      data: orders,
+    });
+  } catch (error) {
+    console.error("Error getting store orders:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to get store orders",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
 module.exports = {
   createOrder,
   getUserOrders,
@@ -633,4 +702,5 @@ module.exports = {
   cancelOrder,
   getAllOrders,
   updateOrderStatus,
+  getStoreOrders,
 };
