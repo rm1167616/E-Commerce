@@ -302,3 +302,149 @@
     display: block;
   }
   
+  /* ...existing code... */
+
+.admin-sidebar-font {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #23272f;
+  color: #fff;
+}
+
+.sidebar-header h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #fff;
+}
+
+.nav-link.dash {
+  font-size: 1.08rem;
+  font-weight: 500;
+  color: #e0e0e0;
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  padding: 12px 18px;
+  transition: background 0.2s;
+}
+
+.nav-link.dash.active,
+.nav-link.sub-link.active {
+  background: #3a3f4b;
+  color: #fff;
+}
+
+.nav-link.dash:hover,
+.nav-link.sub-link:hover {
+  background: #2a2e38;
+  color: #fff;
+}
+
+.nav-link.sub-link {
+  padding-left: 40px;
+  font-size: 0.98rem;
+  color: #b0b0b0;
+}
+
+.dropdown-menu {
+  position: relative;
+  z-index: 1000;
+  background: #23272f;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-radius: 0 0 6px 6px;
+  margin-top: -2px;
+  display: none;
+}
+
+.dropdown-menu.show {
+  display: block;
+}
+
+.nav-item-wrapper {
+  position: relative;
+}
+
+/* ...existing code... */
+
+/* ...existing code... */
+
+.admin-sidebar-font {
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  background: #1a2233;
+  color: #f7fafc;
+}
+
+.sidebar-header h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #4f8cff;
+}
+
+.sidebar {
+  background-color: #1a2233;
+  color: #f7fafc;
+}
+
+.nav-link.dash {
+  font-size: 1.08rem;
+  font-weight: 500;
+  color: #e0e0e0;
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  padding: 12px 18px;
+  transition: background 0.2s;
+  border-left: 4px solid transparent;
+}
+
+.nav-link.dash.active,
+.nav-link.sub-link.active {
+  background: #26304a;
+  color: #4f8cff;
+  border-left: 4px solid #4f8cff;
+}
+
+.nav-link.dash:hover,
+.nav-link.sub-link:hover {
+  background: #232b3e;
+  color: #4f8cff;
+}
+
+.nav-link.sub-link {
+  padding-left: 44px;
+  font-size: 0.98rem;
+  color: #b0b0b0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sub-nav-icon {
+  font-size: 1rem;
+  margin-right: 8px;
+  color: #4f8cff;
+  flex-shrink: 0;
+}
+
+.dropdown-menu {
+  position: relative;
+  z-index: 1000;
+  background: #232b3e;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-radius: 0 0 6px 6px;
+  margin-top: -2px;
+  display: none;
+}
+
+.dropdown-menu.show {
+  display: block;
+}
+
+.nav-item-wrapper {
+  position: relative;
+}
+
+/* ...existing code... */
