@@ -17,34 +17,34 @@ const ProductTable = () => {
         <FilterBar />
       </div>
       {/* Desktop Table */}
-      <Table bordered hover responsive className="product-table d-none d-md-table" style={{marginTop:'5%'}}>
+      <Table bordered hover responsive className="bistik-table d-none d-md-table" style={{marginTop:'5%'}}>
         <thead>
           <tr>
-            <th><Form.Check type="checkbox" /></th>
+            <th className="select-column"><Form.Check type="checkbox" /></th>
             <th>Image</th>
-            <th>Name</th>
+            <th className="title-column">Name</th>
             <th>SKU</th>
             <th>Stock</th>
             <th>Price</th>
-            <th>Categories</th>
-            <th>Tags</th>
+            <th className="categories-column">Categories</th>
+            <th className="tags-column">Tags</th>
             <th>Brands</th>
             <th>★</th>
-            <th>Date</th>
+            <th className="date-column">Date</th>
           </tr>
         </thead>
         <tbody>
           {products.map(prod => (
-            <tr key={prod.id} className="product-row">
-              <td><Form.Check type="checkbox" /></td>
+            <tr key={prod.id} className={prod.selected ? "selected-row" : undefined}>
+              <td className="select-column"><Form.Check type="checkbox" /></td>
               <td>
-                <Link to="/" className="product-link">
+                <Link to="/" className="post-title">
                   <Image src={prod.image} rounded style={{ width: '40px', height: '40px' }} />
                 </Link>
               </td>
-              <td>
-                <Link to="/" className="product-link">
-                  <strong style={{ color: '#1e73be' }}>{prod.name}</strong>
+              <td className="title-column">
+                <Link to="/" className="post-title">
+                  <strong>{prod.name}</strong>
                 </Link>
                 {prod.editable && (
                   <div className="hover-actions">
@@ -58,11 +58,11 @@ const ProductTable = () => {
                 {prod.oldPrice && <del>{prod.oldPrice}</del>}<br />
                 {prod.price} each
               </td>
-              <td className="text-primary">{prod.category}</td>
-              <td>–</td>
+              <td className="categories-column text-primary">{prod.category}</td>
+              <td className="tags-column">–</td>
               <td>—</td>
               <td>{prod.isFeatured ? '⭐' : '☆'}</td>
-              <td>
+              <td className="date-column">
                 Published<br />
                 {prod.date}
               </td>
@@ -77,7 +77,7 @@ const ProductTable = () => {
           <div key={prod.id} className="mobile-product-item">
             <div className="d-flex justify-content-between align-items-center">
               <div>
-                <strong style={{ color: '#1e73be' }}>{prod.name}</strong>
+                <strong className="post-title">{prod.name}</strong>
               </div>
               <div>
                 {prod.isFeatured && <span className="badge bg-primary me-2">Featured</span>}

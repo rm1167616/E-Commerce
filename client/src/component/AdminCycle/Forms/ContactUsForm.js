@@ -8,6 +8,7 @@ import {
   Alert
 } from 'react-bootstrap';
 import { ArrowCounterclockwise, Send } from 'react-bootstrap-icons';
+import './Form.css';
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({

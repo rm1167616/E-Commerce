@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, Button, Form } from 'react-bootstrap';
+import './Form.css';
 
 const StatusForm = ({
   handleSubmit,

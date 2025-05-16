@@ -55,7 +55,7 @@ const OffersTable = () => {
       
       {/* Desktop Table */}
       <div className="flex flex-row" style={{ marginTop: '8%' }}>
-        <Table bordered hover responsive className="product-table d-none d-md-table">
+        <Table bordered hover responsive className="bistik-table d-none d-md-table">
           <thead>
             <tr>
               <th><Form.Check type="checkbox" /></th>
@@ -78,7 +78,7 @@ const OffersTable = () => {
                 </td>
                 <td>
                   <Link to="/" className="product-link">
-                    <strong style={{ color: '#1e73be' }}>{offer.name}</strong>
+                    <strong className="post-title">{offer.name}</strong>
                   </Link>
                   <div className="hover-actions">
                     ID: {offer.id} | <span className="text-primary">Edit</span> | <span className="text-danger">Trash</span> | View 
@@ -103,7 +103,7 @@ const OffersTable = () => {
             <div className="d-flex justify-content-between align-items-center">
               <div>
                 <Image src={offer.image} rounded style={{ width: '40px', height: '40px', marginRight: '10px' }} />
-                <strong style={{ color: '#1e73be' }}>{offer.name}</strong>
+                <strong className="post-title">{offer.name}</strong>
               </div>
               <div>
                 <span className="badge bg-secondary">{offer.percentage}</span>

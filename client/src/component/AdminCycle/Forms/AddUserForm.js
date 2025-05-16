@@ -7,6 +7,7 @@ import {
   Col,
   Alert
 } from 'react-bootstrap';
+import './Form.css';
 
 const AddUserForm = () => {
   const [user, setUser] = useState({

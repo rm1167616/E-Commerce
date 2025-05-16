@@ -9,6 +9,7 @@ import {
   Image
 } from 'react-bootstrap';
 import { ArrowCounterclockwise, PlusCircle, Trash } from 'react-bootstrap-icons';
+import './Form.css';
 
 const ContactUsForm = () => {
   const defaultSection = {

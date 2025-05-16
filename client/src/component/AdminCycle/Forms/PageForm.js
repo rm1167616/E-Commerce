@@ -8,6 +8,7 @@ import {
   Alert
 } from 'react-bootstrap';
 import { ArrowCounterclockwise } from 'react-bootstrap-icons';
+import './Form.css';
 
 const PageSettingsForm = () => {
   const defaultSettings = {

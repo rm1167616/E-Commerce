@@ -7,10 +7,7 @@ const CategoryForm = () => {
   return (
     <Container className="my-4">
       <Row className="g-3">
-        <Col md={6} lg={5} xl={4}>
-          <AddCategoryForm />
-        </Col>
-        <Col md={6} lg={7} xl={8}>
+        <Col>
           <CategoryTable />
         </Col>
       </Row>

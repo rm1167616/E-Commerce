@@ -172,7 +172,7 @@ const ReviewsTable = () => {
 
       {/* Desktop Table */}
       <div className="flex flex-row" style={{marginTop:'7%'}}>
-        <Table bordered hover responsive className="product-table d-none d-md-table">
+        <Table bordered hover responsive className="bistik-table d-none d-md-table">
           <thead>
             <tr>
               <th><Form.Check type="checkbox" /></th>
@@ -191,7 +191,7 @@ const ReviewsTable = () => {
                 <td><Form.Check type="checkbox" /></td>
                 <td>
                   <Link to="/" className="product-link">
-                    <strong style={{ color: '#1e73be' }}>{review.product}</strong>
+                    <strong className='post-title'>{review.product}</strong>
                   </Link>
                 </td>
                 <td>
@@ -251,7 +251,7 @@ const ReviewsTable = () => {
           <div key={review.id} className="mobile-product-item">
             <div className="d-flex justify-content-between align-items-center">
               <div>
-                <strong style={{ color: '#1e73be' }}>{review.product}</strong>
+                <strong className='post-title'>{review.product}</strong>
               </div>
               <div>
                 {renderStatusBadge(review.status)}

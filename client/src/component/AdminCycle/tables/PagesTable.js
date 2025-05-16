@@ -17,7 +17,7 @@ const PagesTable = () => {
       
       {/* Desktop Table */}
       <div className="flex flex-row" style={{ marginTop: '2%' }}>
-        <Table bordered hover responsive className="product-table d-none d-md-table">
+        <Table bordered hover responsive className="bistik-table d-none d-md-table">
           <thead>
             <tr>
               <th><Form.Check type="checkbox" /></th>
@@ -33,7 +33,7 @@ const PagesTable = () => {
                 <td><Form.Check type="checkbox" /></td>
                 <td>
                   <Link to="/" className="product-link">
-                    <strong style={{ color: '#1e73be' }}>{page.name}</strong>
+                    <strong className="post-title">{page.name}</strong>
                   </Link>
                   {page.editable && (
                     <div className="hover-actions">
@@ -60,7 +60,7 @@ const PagesTable = () => {
           <div key={page.id} className="mobile-product-item">
             <div className="d-flex justify-content-between align-items-center">
               <div>
-                <strong style={{ color: '#1e73be' }}>{page.name}</strong>
+                <strong className="post-title">{page.name}</strong>
               </div>
               <div>
                 <span className={`badge ${page.status === 'published' ? 'bg-success' : 'bg-secondary'}`}>

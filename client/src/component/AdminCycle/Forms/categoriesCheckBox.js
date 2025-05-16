@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button, Card, Image, Table } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import DescriptionEditor from '../DescriptionEditor/DescriptionEditor';
+import './Form.css';
 
 const ProductPage = () => {
   // ... existing state declarations ...

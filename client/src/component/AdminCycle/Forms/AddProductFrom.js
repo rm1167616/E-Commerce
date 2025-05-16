@@ -5,6 +5,7 @@ import DescriptionEditor from '../DescriptionEditor/DescriptionEditor';
 import Categories from './categoriesCheckBox';
 import ImageUploadForm from './ImageUploadForm';
 import StatusForm from './StatusForm'; // Import the new component
+import './Form.css';
 
 const ProductPage = () => {
   const [productName, setProductName] = useState('');

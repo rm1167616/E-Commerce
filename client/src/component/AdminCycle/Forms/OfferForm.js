@@ -13,6 +13,7 @@ import {
   Alert,
   Table
 } from 'react-bootstrap';
+import './Form.css';
 
 const OfferForm = () => {
   const [offer, setOffer] = useState({

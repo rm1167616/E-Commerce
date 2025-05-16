@@ -73,41 +73,7 @@ const ProductFilterBar = () => {
           </div>
         </Col>
         
-        <Col md={4} className="d-none d-md-block">
-          <div className="pagination-container">
-            <span className="item-count">0 items</span>
-            
-            <span>
-              <span aria-hidden="true" className="filter-button pagination-button-disabled">
-                «
-              </span>
-              
-              <span aria-hidden="true" className="filter-button pagination-button-disabled">
-                ‹
-              </span>
-              
-              <span>
-                <Form.Control 
-                  type="text" 
-                  name="paged" 
-                  value="1" 
-                  size="1"
-                  className="page-input"
-                />
-                
-                <span> of <span style={{ marginRight: '2px' }}>0</span></span>
-              </span>
-              
-              <Button href="?paged=2" className="pagination-button">
-                <span aria-hidden="true">›</span>
-              </Button>
-              
-              <Button href="?paged=2" className="pagination-button">
-                <span aria-hidden="true">»</span>
-              </Button>
-            </span>
-          </div>
-        </Col>
+        
       </Row>
     </div>
   );

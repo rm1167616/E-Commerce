@@ -129,7 +129,7 @@ const UsersTable = () => {
 
       {/* Desktop Table */}
       <div className="flex flex-row" style={{marginTop:'7%'}}>
-        <Table bordered hover responsive className="product-table d-none d-md-table">
+        <Table bordered hover responsive className="bistik-table d-none d-md-table">
           <thead>
             <tr>
               <th><Form.Check type="checkbox" /></th>
@@ -147,7 +147,7 @@ const UsersTable = () => {
                 <td><Form.Check type="checkbox" /></td>
                 <td>
                   <Link to="/" className="product-link">
-                    <strong style={{ color: '#1e73be' }}>{user.username}</strong>
+                    <strong className='post-title'>{user.username}</strong>
                   </Link>
                   <div className="hover-actions">
                     ID: {user.id} | <span className="text-primary">Edit</span> | <span className="text-danger">Delete</span> | View 
@@ -163,13 +163,7 @@ const UsersTable = () => {
               </tr>
             ))}
           </tbody>
-          <tfoot>
-            <tr>
-              <td colSpan="7" className="text-muted small">
-                WordPress.com account [?] | {users.length} items
-              </td>
-            </tr>
-          </tfoot>
+     
         </Table>
       </div>
 
@@ -179,7 +173,7 @@ const UsersTable = () => {
           <div key={user.id} className="mobile-product-item">
             <div className="d-flex justify-content-between align-items-center">
               <div>
-                <strong style={{ color: '#1e73be' }}>{user.username}</strong>
+                <strong className='post-title'>{user.username}</strong>
               </div>
               <div>
                 <span className="badge bg-secondary">{user.role}</span>
@@ -214,9 +208,7 @@ const UsersTable = () => {
             </div>
           </div>
         ))}
-        <div className="text-muted small mt-2">
-          WordPress.com account [?] | {users.length} items
-        </div>
+    
       </div>
     </>
   );

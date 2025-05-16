@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, Form, Image } from 'react-bootstrap';
+import './Form.css';
 
 const ImageUploadForm = ({ productImage, handleImageUpload }) => {
     
