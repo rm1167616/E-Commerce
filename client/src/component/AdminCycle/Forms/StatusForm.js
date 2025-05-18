@@ -14,14 +14,14 @@ const StatusForm = ({
           <div className="d-grid gap-2 mb-3">
             <Button 
               variant="outline-secondary" 
-              onClick={handleSaveDraft}
+              onClick={e => handleSaveDraft(e)}
             >
               Save Draft
             </Button>
             <Button variant="outline-secondary">Preview</Button>
             <Button 
               variant="outline-primary" 
-              onClick={handleSubmit}
+              onClick={e => handleSubmit(e)}
             >
               Publish
             </Button>

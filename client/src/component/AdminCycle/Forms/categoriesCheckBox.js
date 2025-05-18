@@ -84,24 +84,17 @@ const ProductPage = () => {
   return (
     <Container fluid className="mt-4">
       <Row>
-        <Col md={8}>
-          {/* ... your existing form content ... */}
-        </Col>
-
-        <Col md={4}>
-          {/* ... your existing publish and product image cards ... */}
-
-          {/* Add the new Categories Card */}
-          <Card className="mb-4">
-            <Card.Header as="h5">Product categories</Card.Header>
-            <Card.Body>
+ 
+        <Col md={12} className="p-0">
+          <Card className="mb-4 w-100" style={{ minHeight: 260, width: '100%' }}>
+            
+            <Card.Body className="p-2">
               <div className="mb-3">
                 <Form.Control 
                   type="text" 
                   placeholder="Search categories" 
                   className="mb-3"
                 />
-                
                 <div className="d-flex border-bottom mb-3">
                   <Button 
                     variant="link" 
@@ -118,8 +111,7 @@ const ProductPage = () => {
                     Most Used
                   </Button>
                 </div>
-                
-                <Table borderless hover className="categories-table">
+                <Table borderless hover className="categories-table w-100">
                   <tbody>
                     {(activeTab === 'all' ? categories : mostUsedCategories).map((category) => (
                       <React.Fragment key={category.id}>
@@ -160,13 +152,11 @@ const ProductPage = () => {
                   </tbody>
                 </Table>
               </div>
-              
               <Button variant="link" className="p-0">
                 + Add new category
               </Button>
             </Card.Body>
           </Card>
-
         </Col>
       </Row>
     </Container>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import { 
   Card, 
@@ -14,7 +14,7 @@ import {
   Table
 } from 'react-bootstrap';
 
-const CategoryForm = () => {
+const CategoryForm = ({ categoryId, action, actionCategory }) => {
   const [category, setCategory] = useState({
     name: '',
     slug: '',
@@ -40,6 +40,44 @@ const CategoryForm = () => {
 
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!categoryId) { return; }
+    setLoading(true);
+    setError(null);
+    fetch(`/api/admin/categories/${categoryId}`)
+      .then(async (res) => {
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(errText || 'Failed to fetch category');
+        }
+        return res.json();
+      })
+      .then(data => {
+        setCategory({
+          name: data.name || '',
+          slug: data.slug || '',
+          parentCategory: data.parent || 'none',
+          description: data.description || '',
+          thumbnail: data.thumbnail || null,
+          productCount: data.productCount || 0
+        });
+      })
+      .catch(err => setError(err.message))
+      .finally(() => setLoading(false));
+  }, [categoryId]);
+
+  useEffect(() => {
+    if (action) {
+      if (action === 'add') {
+        alert('Add Category action triggered!');
+      } else if (actionCategory) {
+        alert(`${action.charAt(0).toUpperCase() + action.slice(1)} action for category: ${actionCategory.name} (ID: ${actionCategory.id})`);
+      }
+    }
+  }, [action, actionCategory]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -76,31 +114,43 @@ const CategoryForm = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const newCategory = {
-      id: categories.length + 1,
-      name: category.name,
-      parent: category.parentCategory === 'none' ? 'none' : category.parentCategory,
-      productCount: selectedProducts.length,
-      products: selectedProducts
-    };
-    
-    setCategories([...categories, newCategory]);
-    setShowSuccess(true);
-    
-    // Reset form
-    setCategory({
-      name: '',
-      slug: '',
-      parentCategory: 'none',
-      description: '',
-      thumbnail: null,
-      productCount: 0
-    });
-    setSelectedProducts([]);
-
-    setTimeout(() => setShowSuccess(false), 3000);
+    setLoading(true);
+    setError(null);
+    try {
+      const body = {
+        name: category.name,
+        description: category.description,
+        parent: category.parentCategory === 'none' ? null : category.parentCategory,
+        // Add other fields as needed
+      };
+      const response = await fetch('/api/admin/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(errText || 'Failed to create category');
+      }
+      setShowSuccess(true);
+      // Reset form
+      setCategory({
+        name: '',
+        slug: '',
+        parentCategory: 'none',
+        description: '',
+        thumbnail: null,
+        productCount: 0
+      });
+      setSelectedProducts([]);
+      setTimeout(() => setShowSuccess(false), 3000);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const parentCategories = categories.filter(cat => cat.parent === 'none');
@@ -108,11 +158,13 @@ const CategoryForm = () => {
   return (
     <Card className="shadow-sm">
       <Card.Header as="h5" className="py-3 bg-light">
-        Add new category
+        {categoryId ? 'Edit category' : 'Add new category'}
       </Card.Header>
       <Card.Body>
+        {loading && <Alert variant="info">Loading category...</Alert>}
+        {error && <Alert variant="danger">{error}</Alert>}
         {showSuccess && (
-          <Alert variant="success" onClose={() => setShowSuccess(false)} dismissible>
+          <Alert variant="primary" onClose={() => setShowSuccess(false)} dismissible>
             Category created successfully with {selectedProducts.length} products!
           </Alert>
         )}

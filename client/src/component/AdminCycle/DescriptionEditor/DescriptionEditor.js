@@ -1,10 +1,12 @@
 import React from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 
-export default function App() {
+export default function DescriptionEditor({ value, onChange }) {
   return (
     <Editor
       apiKey='5408gyvhszfkcr6j5bx1tb4fd8pts1ukai6glsrvjxycxrmp'
+      value={value}
+      onEditorChange={onChange}
       init={{
         plugins: [
           // Core editing features
@@ -22,7 +24,7 @@ export default function App() {
         ],
         ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
       }}
-      initialValue="Welcome to TinyMCE!"
+      initialValue=""
     />
   );
 }

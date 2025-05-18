@@ -247,3 +247,6 @@ CREATE TABLE PageSettings (
     FOREIGN KEY (store_id) REFERENCES Stores(store_id) ON DELETE CASCADE,
     CHECK (id = 1)
 );
+
+
+

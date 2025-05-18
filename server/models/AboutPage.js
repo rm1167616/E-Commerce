@@ -14,7 +14,7 @@ const AboutPage = sequelize.define(
       allowNull: false,
       references: {
         model: "Stores",
-        key: "id",
+        key: "store_id", // Fixed: should match the PK in Store.js
       },
     },
   },
@@ -24,4 +24,4 @@ const AboutPage = sequelize.define(
   }
 );
 
-module.exports = AboutPage; 
+module.exports = AboutPage;
