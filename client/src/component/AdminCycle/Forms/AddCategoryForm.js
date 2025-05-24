@@ -119,11 +119,19 @@ const CategoryForm = ({ categoryId, action, actionCategory }) => {
     setLoading(true);
     setError(null);
     try {
+      // Find parent_category_id from selected parentCategory name
+      let parent_category_id = 0;
+      if (category.parentCategory !== 'none') {
+        const parentCat = categories.find(cat => cat.name === category.parentCategory);
+        parent_category_id = parentCat ? parentCat.id : 0;
+      }
+      // Use the image URL as img_path if available, else empty string
+      const img_path = category.thumbnail || '';
       const body = {
         name: category.name,
         description: category.description,
-        parent: category.parentCategory === 'none' ? null : category.parentCategory,
-        // Add other fields as needed
+        parent_category_id,
+        img_path
       };
       const response = await fetch('/api/admin/categories', {
         method: 'POST',
@@ -147,7 +155,12 @@ const CategoryForm = ({ categoryId, action, actionCategory }) => {
       setSelectedProducts([]);
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (err) {
-      setError(err.message);
+      // If error message contains HTML, show a user-friendly message
+      let userMessage = err.message;
+      if (userMessage && userMessage.includes('<!DOCTYPE html>')) {
+        userMessage = 'Server error: Category API endpoint not found. Please contact support.';
+      }
+      setError(userMessage);
     } finally {
       setLoading(false);
     }
@@ -162,7 +175,11 @@ const CategoryForm = ({ categoryId, action, actionCategory }) => {
       </Card.Header>
       <Card.Body>
         {loading && <Alert variant="info">Loading category...</Alert>}
-        {error && <Alert variant="danger">{error}</Alert>}
+        {error && (
+          <Alert variant="danger" style={{ color: '#fff', backgroundColor: '#dc3545' }}>
+            {error}
+          </Alert>
+        )}
         {showSuccess && (
           <Alert variant="primary" onClose={() => setShowSuccess(false)} dismissible>
             Category created successfully with {selectedProducts.length} products!
