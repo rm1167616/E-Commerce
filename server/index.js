@@ -56,10 +56,9 @@ app.use((err, req, res, next) => {
 
     if (!dbSynced) {
       console.error(
-        "Failed to sync database. Server will start but may not function correctly."
+        "[Startup Warning] Failed to sync database. Server will start but may not function correctly.\nPlease check your database connection and configuration."
       );
     }
-
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
       console.log(

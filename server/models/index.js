@@ -194,7 +194,8 @@ const syncDatabase = async () => {
     const connectionSuccessful = await testConnection();
 
     if (!connectionSuccessful) {
-      throw new Error("Database connection failed");
+      console.error("[syncDatabase] Database connection failed. Check your DB server, credentials, and network.");
+      return false;
     }
 
     // Set { alter: true } to update tables if they exist

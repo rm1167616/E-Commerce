@@ -20,7 +20,6 @@ const sequelize = new Sequelize(
     dialectOptions: {
       // For MySQL 8.0+ compatibility
       charset: "utf8mb4",
-      collate: "utf8mb4_general_ci",
     },
     dialectModule: require("mysql2"),
   }
@@ -33,7 +32,13 @@ const testConnection = async () => {
     console.log("Database connection has been established successfully.");
     return true;
   } catch (error) {
-    console.error("Unable to connect to the database:", error);
+    if (error.original && error.original.code === 'ECONNREFUSED') {
+      console.error("\n[ERROR] Unable to connect to the database: Connection refused.\n" +
+        "Please check that your MySQL server is running, and that your DB_HOST, DB_PORT, DB_USER, and DB_PASSWORD are correct in your .env file.\n" +
+        "If using Docker, ensure the container is running and the port is exposed.\n");
+    } else {
+      console.error("Unable to connect to the database:", error);
+    }
     if (process.env.NODE_ENV === "production") {
       process.exit(1);
     }
