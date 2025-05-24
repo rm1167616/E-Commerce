@@ -3,8 +3,17 @@ import './Style/CardTemplate2.css';
 
 const CardTemplate2 = ({ product }) => {
   return (
+
+
+
+
+
+
     <div className="product-card">
       <div className="product-image-container">
+
+
+
         <img 
           src={product.imageUrl} 
           alt={product.name}
@@ -19,6 +28,9 @@ const CardTemplate2 = ({ product }) => {
       <div className="product-details">
         <h3 className="product-name">{product.name}</h3>
         <p className="product-category">{product.category}</p>
+
+
+
         <div className="price-container">
           {product.originalPrice && (
             <span className="original-price">${product.originalPrice}</span>
